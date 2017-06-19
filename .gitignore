@@ -1,4 +1,5 @@
 .DS_Store
 /.build
 /Packages
-/*.xcodeproj
+Wires.xcodeproj/project.xcworkspace/xcuserdata
+Wires.xcodeproj/xcuserdata
