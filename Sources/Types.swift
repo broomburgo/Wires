@@ -32,17 +32,24 @@ public final class Wire {
 
 	private var producer: Any?
 	private var consumer: Any?
+    
+    private var connected: Bool
 
 	public init<P,C>(producer: P, consumer: C) where P: Producer, C: Consumer, P.ProducedType == C.ConsumedType {
 		self.producer = producer
 		self.consumer = consumer
+        self.connected = true
 
-		producer.upon { consumer.update($0) }
+        producer.upon { [weak self] signal in
+            guard let this = self, this.connected else { return }
+            consumer.update(signal)
+        }
 	}
 
 	public func disconnect() {
 		producer = nil
 		consumer = nil
+        connected = false
 	}
 }
 

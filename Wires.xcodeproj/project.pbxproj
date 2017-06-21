@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		382859021EF7DD8500C765DB /* Wires-ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 382859001EF7DD8500C765DB /* Wires-ios.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		382859061EF7DDAD00C765DB /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* Types.swift */; };
+		AAF11E191EF967CC00B994AF /* TalkerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF11E181EF967CC00B994AF /* TalkerTests.swift */; };
+		AAF11E1B1EF97EC900B994AF /* ListenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF11E1A1EF97EC900B994AF /* ListenerTests.swift */; };
 		OBJ_20 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* Types.swift */; };
 		OBJ_27 /* WiresTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* WiresTests.swift */; };
 		OBJ_29 /* Wires.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_13 /* Wires.framework */; };
@@ -28,6 +30,8 @@
 		382858FE1EF7DD8500C765DB /* Wires.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Wires.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		382859001EF7DD8500C765DB /* Wires-ios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Wires-ios.h"; sourceTree = "<group>"; };
 		382859011EF7DD8500C765DB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AAF11E181EF967CC00B994AF /* TalkerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TalkerTests.swift; sourceTree = "<group>"; };
+		AAF11E1A1EF97EC900B994AF /* ListenerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListenerTests.swift; sourceTree = "<group>"; };
 		OBJ_11 /* WiresTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiresTests.swift; sourceTree = "<group>"; };
 		OBJ_13 /* Wires.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Wires.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_14 /* WiresTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; path = WiresTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -74,6 +78,8 @@
 			isa = PBXGroup;
 			children = (
 				OBJ_11 /* WiresTests.swift */,
+				AAF11E181EF967CC00B994AF /* TalkerTests.swift */,
+				AAF11E1A1EF97EC900B994AF /* ListenerTests.swift */,
 			);
 			name = WiresTests;
 			path = Tests/WiresTests;
@@ -89,7 +95,7 @@
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -98,7 +104,6 @@
 				382858FF1EF7DD8500C765DB /* Wires-ios */,
 				OBJ_12 /* Products */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_7 /* Sources */ = {
@@ -204,7 +209,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_12 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -247,6 +252,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				AAF11E1B1EF97EC900B994AF /* ListenerTests.swift in Sources */,
+				AAF11E191EF967CC00B994AF /* TalkerTests.swift in Sources */,
 				OBJ_27 /* WiresTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -510,6 +517,7 @@
 				382859051EF7DD8500C765DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
 		};
 		OBJ_16 /* Build configuration list for PBXNativeTarget "Wires" */ = {
 			isa = XCConfigurationList;
