@@ -156,6 +156,24 @@ public class AnyProducer<A>: Producer {
 	}
 }
 
+public final class Fulfilled<Wrapped>: Producer {
+    public typealias ProducedType = Wrapped
+    
+    public var productionQueue: DispatchQueue
+    private let value: Wrapped
+    
+    public init(_ value: Wrapped, productionQueue: DispatchQueue = .main) {
+        self.value = value
+        self.productionQueue = productionQueue
+    }
+    
+    @discardableResult
+    public func upon(_ callback: @escaping (Signal<Wrapped>) -> ()) -> Self {
+        callback(.next(value))
+        return self
+    }
+}
+
 public protocol Transformer: Producer {
 	associatedtype TransformedType
 	func transform(_ value: TransformedType) -> (@escaping (Signal<ProducedType>) -> ()) -> ()
