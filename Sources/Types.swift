@@ -176,7 +176,7 @@ public final class ConstantProducer<Wrapped>: Producer {
 
 public protocol Transformer: Producer {
 	associatedtype TransformedType
-	func transform(_ value: TransformedType) -> (@escaping (Signal<ProducedType>) -> ()) -> ()
+	func transform(_ value: Signal<TransformedType>) -> (@escaping (Signal<ProducedType>) -> ()) -> ()
 }
 
 open class AbstractTransformer<Source,Target>: Transformer {
@@ -184,26 +184,21 @@ open class AbstractTransformer<Source,Target>: Transformer {
 	public typealias ProducedType = Target
 
 	private let root: AnyProducer<Source>
-	let transformationQueue: DispatchQueue
+    let transformationQueue: DispatchQueue
     public let productionQueue: DispatchQueue
-	private let talker: Talker<Target>
+    private let talker: Talker<Target>
     private lazy var listener: Listener<Source> = Listener<Source>.init(listen: { [weak self] signal in
         guard let this = self else { return }
-        switch signal {
-        case .next(let value):
-            this.transformationQueue.async {
-                let call = this.transform(value)
-                call { newSignal in
-                    switch newSignal {
-                    case .next(let value):
-                        this.talker.say(value)
-                    case .stop:
-                        this.talker.mute()
-                    }
+        this.transformationQueue.async {
+            let call = this.transform(signal)
+            call { newSignal in
+                switch newSignal {
+                case .next(let value):
+                    this.talker.say(value)
+                case .stop:
+                    this.talker.mute()
                 }
             }
-        case .stop:
-            this.talker.mute()
         }
     })
 
@@ -221,7 +216,7 @@ open class AbstractTransformer<Source,Target>: Transformer {
 		return self
 	}
 
-	public func transform(_ value: Source) -> (@escaping (Signal<Target>) -> ()) -> () {
+	public func transform(_ value: Signal<Source>) -> (@escaping (Signal<Target>) -> ()) -> () {
 		fatalError("\(self): transform(_:) not implemented")
 	}
 }
@@ -234,10 +229,10 @@ public final class MapProducer<Source,Target>: AbstractTransformer<Source,Target
 		super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
 	}
 
-	public override func transform(_ value: Source) -> (@escaping (Signal<Target>) -> ()) -> () {
+	public override func transform(_ signal: Signal<Source>) -> (@escaping (Signal<Target>) -> ()) -> () {
 		return { [weak self] done in
             guard let this = self else { return }
-            done(.next(this.mappingFunction(value)))
+            done(signal.map(this.mappingFunction))
         }
 	}
 }
@@ -250,10 +245,15 @@ public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Ta
 		super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
 	}
 
-	public override func transform(_ value: Source) -> (@escaping (Signal<Target>) -> ()) -> () {
+	public override func transform(_ signal: Signal<Source>) -> (@escaping (Signal<Target>) -> ()) -> () {
 		return { [weak self] done in
             guard let this = self else { return }
-            this.flatMappingFunction(value).upon(done)
+            switch signal {
+            case .next(let value):
+                this.flatMappingFunction(value).upon(done)
+            case .stop:
+                done(.stop)
+            }
         }
 	}
 }
@@ -266,10 +266,15 @@ public final class FilterProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped>
         super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
     }
     
-    public override func transform(_ value: Wrapped) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
+    public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
         return { [weak self] done in
             guard let this = self else { return }
-            if this.conditionFunction(value) { done(.next(value)) }
+            switch signal {
+            case .next(let value):
+                if this.conditionFunction(value) { done(.next(value)) }
+            case .stop:
+                done(.stop)
+            }
         }
     }
 }
@@ -283,17 +288,59 @@ public final class DebounceProducer<Wrapped>: AbstractTransformer<Wrapped,Wrappe
 		super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
 	}
 
-	public override func transform(_ value: Wrapped) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
+	public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
 		currentSignalId += 1
 		let expectedSignalId = currentSignalId
 		return { [weak self] done in
-			guard let this = self else { return }
-			this.transformationQueue.asyncAfter(deadline: .now() + this.delay, execute: {
-				guard this.currentSignalId == expectedSignalId else { return }
-				done(.next(value))
-			})
-		}
+            guard let this = self else { return }
+            switch signal {
+            case .next(let value):
+                this.transformationQueue.asyncAfter(deadline: .now() + this.delay, execute: {
+                    guard this.currentSignalId == expectedSignalId else { return }
+                    done(.next(value))
+                })
+            case .stop:
+                done(.stop)
+            }
+        }
 	}
+}
+
+public final class CachedProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped> {
+    private var cached: ConstantProducer<Wrapped>? = nil
+    
+    public init<P>(_ root: P, queue: DispatchQueue) where P:Producer, P.ProducedType == Wrapped {
+        super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
+        root.upon { [weak self] signal in
+            guard let this = self else { return }
+            switch signal {
+            case .next(let value):
+                this.cached = ConstantProducer.init(value, productionQueue: this.productionQueue)
+            case .stop:
+                this.cached = nil
+            }
+        }
+    }
+    
+    public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
+        return { [weak self] done in
+            guard let this = self else { return }
+            done(signal)
+            switch signal {
+            case .next(let value):
+                this.cached = ConstantProducer.init(value, productionQueue: this.productionQueue)
+            case .stop:
+                this.cached = nil
+            }
+        }
+    }
+    
+    @discardableResult
+    public override func upon(_ callback: @escaping (Signal<Wrapped>) -> ()) -> Self {
+        cached?.upon(callback)
+        super.upon(callback)
+        return self
+    }
 }
 
 extension Producer {
