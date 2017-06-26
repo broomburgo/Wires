@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		382859021EF7DD8500C765DB /* Wires-ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 382859001EF7DD8500C765DB /* Wires-ios.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		382859061EF7DDAD00C765DB /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* Types.swift */; };
+		AA9C81DE1F0101F2006A3B26 /* ProducersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9C81DD1F0101F2006A3B26 /* ProducersTests.swift */; };
 		AAF11E191EF967CC00B994AF /* TalkerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF11E181EF967CC00B994AF /* TalkerTests.swift */; };
 		AAF11E1B1EF97EC900B994AF /* ListenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF11E1A1EF97EC900B994AF /* ListenerTests.swift */; };
 		OBJ_20 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* Types.swift */; };
@@ -30,6 +31,7 @@
 		382858FE1EF7DD8500C765DB /* Wires.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Wires.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		382859001EF7DD8500C765DB /* Wires-ios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Wires-ios.h"; sourceTree = "<group>"; };
 		382859011EF7DD8500C765DB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA9C81DD1F0101F2006A3B26 /* ProducersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProducersTests.swift; sourceTree = "<group>"; };
 		AAF11E181EF967CC00B994AF /* TalkerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TalkerTests.swift; sourceTree = "<group>"; };
 		AAF11E1A1EF97EC900B994AF /* ListenerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListenerTests.swift; sourceTree = "<group>"; };
 		OBJ_11 /* WiresTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiresTests.swift; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 				OBJ_11 /* WiresTests.swift */,
 				AAF11E181EF967CC00B994AF /* TalkerTests.swift */,
 				AAF11E1A1EF97EC900B994AF /* ListenerTests.swift */,
+				AA9C81DD1F0101F2006A3B26 /* ProducersTests.swift */,
 			);
 			name = WiresTests;
 			path = Tests/WiresTests;
@@ -253,6 +256,7 @@
 			buildActionMask = 0;
 			files = (
 				AAF11E1B1EF97EC900B994AF /* ListenerTests.swift in Sources */,
+				AA9C81DE1F0101F2006A3B26 /* ProducersTests.swift in Sources */,
 				AAF11E191EF967CC00B994AF /* TalkerTests.swift in Sources */,
 				OBJ_27 /* WiresTests.swift in Sources */,
 			);

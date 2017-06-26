@@ -215,6 +215,7 @@ open class AbstractTransformer<Source,Target>: Transformer {
 		self.root.upon { [weak self] signal in self?.listener.update(signal) }
 	}
 
+    @discardableResult
 	public func upon(_ callback: @escaping (Signal<Target>) -> ()) -> Self {
 		self.talker.upon(callback)
 		return self
@@ -251,12 +252,26 @@ public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Ta
 
 	public override func transform(_ value: Source) -> (@escaping (Signal<Target>) -> ()) -> () {
 		return { [weak self] done in
-			guard let this = self else { return }
-			this.transformationQueue.async {
-				this.flatMappingFunction(value).upon(done)
-			}
-		}
+            guard let this = self else { return }
+            this.flatMappingFunction(value).upon(done)
+        }
 	}
+}
+
+public final class FilterProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped> {
+    private let conditionFunction: (Wrapped) -> Bool
+    
+    public init<P>(_ root: P, queue: DispatchQueue, conditionFunction: @escaping (Wrapped) -> Bool) where P: Producer, P.ProducedType == Wrapped {
+        self.conditionFunction = conditionFunction
+        super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
+    }
+    
+    public override func transform(_ value: Wrapped) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
+        return { [weak self] done in
+            guard let this = self else { return }
+            if this.conditionFunction(value) { done(.next(value)) }
+        }
+    }
 }
 
 public final class DebounceProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped> {
@@ -297,4 +312,8 @@ extension Producer {
 	public func debounce(on queue: DispatchQueue = .main, delay: Double) -> DebounceProducer<ProducedType> {
 		return DebounceProducer<ProducedType>.init(self, queue: queue, delay: delay)
 	}
+    
+    public func filter(on queue: DispatchQueue = .main, predicate: @escaping (ProducedType) -> Bool) -> FilterProducer<ProducedType> {
+        return FilterProducer<ProducedType>.init(self, queue: queue, conditionFunction: predicate)
+    }
 }
