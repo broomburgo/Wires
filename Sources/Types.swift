@@ -156,7 +156,7 @@ public class AnyProducer<A>: Producer {
 	}
 }
 
-public final class Fulfilled<Wrapped>: Producer {
+public final class ConstantProducer<Wrapped>: Producer {
     public typealias ProducedType = Wrapped
     
     public var productionQueue: DispatchQueue
@@ -169,7 +169,7 @@ public final class Fulfilled<Wrapped>: Producer {
     
     @discardableResult
     public func upon(_ callback: @escaping (Signal<Wrapped>) -> ()) -> Self {
-        callback(.next(value))
+        productionQueue.async { callback(.next(self.value)) }
         return self
     }
 }
