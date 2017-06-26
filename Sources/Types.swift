@@ -17,6 +17,8 @@ public enum Signal<A> {
 public protocol Producer: class {
 	associatedtype ProducedType
 
+    var productionQueue: DispatchQueue { get }
+    
 	@discardableResult
 	func upon(_ callback: @escaping (Signal<ProducedType>) -> ()) -> Self
 }
@@ -32,17 +34,24 @@ public final class Wire {
 
 	private var producer: Any?
 	private var consumer: Any?
+    
+    private var connected: Bool
 
 	public init<P,C>(producer: P, consumer: C) where P: Producer, C: Consumer, P.ProducedType == C.ConsumedType {
 		self.producer = producer
 		self.consumer = consumer
+        self.connected = true
 
-		producer.upon { consumer.update($0) }
+        producer.upon { [weak self] signal in
+            guard let this = self, this.connected else { return }
+            consumer.update(signal)
+        }
 	}
 
 	public func disconnect() {
 		producer = nil
 		consumer = nil
+        connected = false
 	}
 }
 
@@ -57,13 +66,23 @@ public final class Talker<A>: Producer {
 
 	private var callbacks: [(Signal<A>) -> ()] = []
 
+    public let productionQueue: DispatchQueue
+    
+    init(productionQueue: DispatchQueue = .main) {
+        self.productionQueue = productionQueue
+    }
+    
 	public func say(_ value: A) {
-		callbacks.forEach { $0(.next(value)) }
+        callbacks.forEach { callback in
+            self.productionQueue.async { callback(.next(value)) }
+        }
 	}
 
 	@discardableResult
 	public func mute() -> Talker<A> {
-		callbacks.forEach { $0(.stop) }
+        callbacks.forEach { callback in
+            self.productionQueue.async { callback(.stop) }
+        }
 		callbacks.removeAll()
 		return self
 	}
@@ -93,6 +112,10 @@ public final class Listener<A>: Consumer {
 
 class BoxProducerBase<Wrapped>: Producer {
 	typealias ProducedType = Wrapped
+    
+    var productionQueue: DispatchQueue {
+        fatalError()
+    }
 
 	@discardableResult
 	func upon(_ callback: @escaping (Signal<Wrapped>) -> ()) -> Self {
@@ -117,6 +140,10 @@ public class AnyProducer<A>: Producer {
 	public typealias ProducedType = A
 
 	fileprivate let box: BoxProducerBase<A>
+    
+    public var productionQueue: DispatchQueue {
+        return self.box.productionQueue
+    }
 
 	public init<P: Producer>(_ base: P) where P.ProducedType == ProducedType {
 		self.box = BoxProducer(base: base)
@@ -129,6 +156,24 @@ public class AnyProducer<A>: Producer {
 	}
 }
 
+public final class ConstantProducer<Wrapped>: Producer {
+    public typealias ProducedType = Wrapped
+    
+    public var productionQueue: DispatchQueue
+    private let value: Wrapped
+    
+    public init(_ value: Wrapped, productionQueue: DispatchQueue = .main) {
+        self.value = value
+        self.productionQueue = productionQueue
+    }
+    
+    @discardableResult
+    public func upon(_ callback: @escaping (Signal<Wrapped>) -> ()) -> Self {
+        productionQueue.async { callback(.next(self.value)) }
+        return self
+    }
+}
+
 public protocol Transformer: Producer {
 	associatedtype TransformedType
 	func transform(_ value: TransformedType) -> (@escaping (Signal<ProducedType>) -> ()) -> ()
@@ -139,30 +184,34 @@ open class AbstractTransformer<Source,Target>: Transformer {
 	public typealias ProducedType = Target
 
 	private let root: AnyProducer<Source>
-	let queue: DispatchQueue
+	let transformationQueue: DispatchQueue
+    public let productionQueue: DispatchQueue
 	private let talker: Talker<Target>
-	private lazy var listener: Listener<Source> = Listener<Source>.init(listen: { [weak self] signal in
-		guard let this = self else { return }
-		switch signal {
-		case .next(let value):
-			let call = this.transform(value)
-			call { newSignal in
-				switch newSignal {
-				case .next(let value):
-					this.talker.say(value)
-				case .stop:
-					this.talker.mute()
-				}
-			}
-		case .stop:
-			this.talker.mute()
-		}
-	})
+    private lazy var listener: Listener<Source> = Listener<Source>.init(listen: { [weak self] signal in
+        guard let this = self else { return }
+        switch signal {
+        case .next(let value):
+            this.transformationQueue.async {
+                let call = this.transform(value)
+                call { newSignal in
+                    switch newSignal {
+                    case .next(let value):
+                        this.talker.say(value)
+                    case .stop:
+                        this.talker.mute()
+                    }
+                }
+            }
+        case .stop:
+            this.talker.mute()
+        }
+    })
 
-	public init<P>(_ root: P, queue: DispatchQueue) where P: Producer, P.ProducedType == Source {
+	public init<P>(_ root: P, transformationQueue: DispatchQueue, productionQueue: DispatchQueue) where P: Producer, P.ProducedType == Source {
 		self.root = AnyProducer.init(root)
-		self.queue = queue
-		self.talker = Talker<Target>.init()
+		self.transformationQueue = transformationQueue
+        self.productionQueue = productionQueue
+        self.talker = Talker<Target>.init(productionQueue: productionQueue)
 		self.root.upon { [weak self] signal in self?.listener.update(signal) }
 	}
 
@@ -181,16 +230,14 @@ public final class MapProducer<Source,Target>: AbstractTransformer<Source,Target
 
 	public init<P>(_ root: P, queue: DispatchQueue, mappingFunction: @escaping (Source) -> Target) where P: Producer, P.ProducedType == Source {
 		self.mappingFunction = mappingFunction
-		super.init(root, queue: queue)
+		super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
 	}
 
 	public override func transform(_ value: Source) -> (@escaping (Signal<Target>) -> ()) -> () {
 		return { [weak self] done in
-			guard let this = self else { return }
-			this.queue.async {
-				done(.next(this.mappingFunction(value)))
-			}
-		}
+            guard let this = self else { return }
+            done(.next(this.mappingFunction(value)))
+        }
 	}
 }
 
@@ -199,13 +246,13 @@ public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Ta
 
 	public init<P>(_ root: P, queue: DispatchQueue, flatMappingFunction: @escaping (Source) -> AnyProducer<Target>) where P: Producer, P.ProducedType == Source {
 		self.flatMappingFunction = flatMappingFunction
-		super.init(root, queue: queue)
+		super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
 	}
 
 	public override func transform(_ value: Source) -> (@escaping (Signal<Target>) -> ()) -> () {
 		return { [weak self] done in
 			guard let this = self else { return }
-			this.queue.async {
+			this.transformationQueue.async {
 				this.flatMappingFunction(value).upon(done)
 			}
 		}
@@ -218,7 +265,7 @@ public final class DebounceProducer<Wrapped>: AbstractTransformer<Wrapped,Wrappe
 
 	public init<P>(_ root: P, queue: DispatchQueue, delay: Double) where P: Producer, P.ProducedType == Wrapped {
 		self.delay = delay
-		super.init(root, queue: queue)
+		super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
 	}
 
 	public override func transform(_ value: Wrapped) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
@@ -226,7 +273,7 @@ public final class DebounceProducer<Wrapped>: AbstractTransformer<Wrapped,Wrappe
 		let expectedSignalId = currentSignalId
 		return { [weak self] done in
 			guard let this = self else { return }
-			this.queue.asyncAfter(deadline: .now() + this.delay, execute: {
+			this.transformationQueue.asyncAfter(deadline: .now() + this.delay, execute: {
 				guard this.currentSignalId == expectedSignalId else { return }
 				done(.next(value))
 			})

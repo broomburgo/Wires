@@ -9,7 +9,7 @@ class WiresTests: XCTestCase {
 		currentWire?.disconnect()
 	}
 
-	func testExample() {
+	func testWiresConnect() {
 		let p = Talker<Int>.init()
 
 		let sentValue = 42
@@ -35,4 +35,26 @@ class WiresTests: XCTestCase {
 
 		waitForExpectations(timeout: 1)
 	}
+    
+    func testWiresDisconnect() {
+        let expectedValue = 23
+        let willDisconnectProperly = expectation(description: "willDisconnectProperly")
+        let talker = Talker<Int>()
+        let listener = Listener<Int>(listen : { signal in
+            switch signal {
+            case .next(let value):
+                XCTAssertEqual(value, expectedValue)
+            case .stop:
+                XCTFail()
+            }
+            willDisconnectProperly.fulfill()
+        })
+        
+        currentWire = talker.connect(to: listener)
+        talker.say(expectedValue)
+        currentWire?.disconnect()
+        talker.say(42)
+        
+        waitForExpectations(timeout: 1)
+    }
 }
