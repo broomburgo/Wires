@@ -11,6 +11,55 @@ class ProducersTests: XCTestCase {
         wire = nil
     }
     
+    // MARK: MapProducer Tests
+    func testMapSingle() {
+        let talker = Talker<Int>()
+        
+        let sentValue1 = 42
+        let expectedValue1 = "42"
+        let willObserve1 = expectation(description: "willObserve1")
+        
+        let listener = Listener<String>.init { signal in
+            switch signal {
+            case .next(let value):
+                XCTAssertEqual(value, expectedValue1)
+                willObserve1.fulfill()
+            case .stop:
+                XCTFail()
+            }
+        }
+        wire = talker.map{ "\($0)" }.connect(to: listener)
+        
+        talker.say(sentValue1)
+        
+        waitForExpectations(timeout: 1, handler: nil)
+    }
+    
+    func testMapSingleCached() {
+        let talker = Talker<Int>()
+        let cached = talker.cached()
+        
+        let sentValue1 = 42
+        let expectedValue1 = "42"
+        let willObserve1 = expectation(description: "willObserve1")
+        
+        talker.say(sentValue1)
+        
+        let listener = Listener<String>.init { signal in
+            switch signal {
+            case .next(let value):
+                XCTAssertEqual(value, expectedValue1)
+                willObserve1.fulfill()
+            case .stop:
+                XCTFail()
+            }
+        }
+        
+        wire = cached.map { "\($0)" }.connect(to: listener)
+        
+        waitForExpectations(timeout: 1, handler: nil)
+    }
+    
     // MARK: FilterProducer Tests
     func testFilter() {
         // Initial settings
