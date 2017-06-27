@@ -242,5 +242,38 @@ class ProducersTests: XCTestCase {
         
         waitForExpectations(timeout: 1, handler: nil)
     }
+    
+    func testMerge() {
+        let talker1 = Talker<Int>()
+        let talker2 = Talker<Int>()
+        
+        let expectedValue1 = 23
+        let expectedValue2 = 42
+        
+        let willObserve1 = expectation(description: "willObserve1")
+        let willObserve2 = expectation(description: "willObserve2")
+        
+        let listener = Listener<Int>.init{ signal in
+            switch signal {
+            case .next(let value):
+                if value == expectedValue1 {
+                 XCTAssertEqual(value, expectedValue1)
+                    willObserve1.fulfill()
+                } else {
+                    XCTAssertEqual(value, expectedValue2)
+                    willObserve2.fulfill()
+                }
+            case .stop:
+                XCTFail()
+            }
+        }
+
+        wire = talker1.merge(with: talker2).connect(to: listener)
+        
+        talker1.say(expectedValue1)
+        talker2.say(expectedValue2)
+        
+        waitForExpectations(timeout: 1)
+    }
 
 }

@@ -183,7 +183,7 @@ open class AbstractTransformer<Source,Target>: Transformer {
 	public typealias TransformedType = Source
 	public typealias ProducedType = Target
 
-	private let root: AnyProducer<Source>
+	private let roots: [AnyProducer<Source>]
     let transformationQueue: DispatchQueue
     public let productionQueue: DispatchQueue
     private let talker: Talker<Target>
@@ -202,12 +202,14 @@ open class AbstractTransformer<Source,Target>: Transformer {
         }
     })
 
-	public init<P>(_ root: P, transformationQueue: DispatchQueue, productionQueue: DispatchQueue) where P: Producer, P.ProducedType == Source {
-		self.root = AnyProducer.init(root)
+	public init<P>(_ roots: [P], transformationQueue: DispatchQueue, productionQueue: DispatchQueue) where P: Producer, P.ProducedType == Source {
+		self.roots = roots.map(AnyProducer.init)
 		self.transformationQueue = transformationQueue
         self.productionQueue = productionQueue
         self.talker = Talker<Target>.init(productionQueue: productionQueue)
-		self.root.upon { [weak self] signal in self?.listener.update(signal) }
+        for root in roots {
+            root.upon { [weak self] signal in self?.listener.update(signal) }
+        }
 	}
 
     @discardableResult
@@ -226,7 +228,7 @@ public final class MapProducer<Source,Target>: AbstractTransformer<Source,Target
 
 	public init<P>(_ root: P, queue: DispatchQueue, mappingFunction: @escaping (Source) -> Target) where P: Producer, P.ProducedType == Source {
 		self.mappingFunction = mappingFunction
-		super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
+		super.init([root], transformationQueue: queue, productionQueue: root.productionQueue)
 	}
 
 	public override func transform(_ signal: Signal<Source>) -> (@escaping (Signal<Target>) -> ()) -> () {
@@ -242,7 +244,7 @@ public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Ta
 
 	public init<P>(_ root: P, queue: DispatchQueue, flatMappingFunction: @escaping (Source) -> AnyProducer<Target>) where P: Producer, P.ProducedType == Source {
 		self.flatMappingFunction = flatMappingFunction
-		super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
+		super.init([root], transformationQueue: queue, productionQueue: root.productionQueue)
 	}
 
 	public override func transform(_ signal: Signal<Source>) -> (@escaping (Signal<Target>) -> ()) -> () {
@@ -263,7 +265,7 @@ public final class FilterProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped>
     
     public init<P>(_ root: P, queue: DispatchQueue, conditionFunction: @escaping (Wrapped) -> Bool) where P: Producer, P.ProducedType == Wrapped {
         self.conditionFunction = conditionFunction
-        super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
+        super.init([root], transformationQueue: queue, productionQueue: root.productionQueue)
     }
     
     public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
@@ -285,7 +287,7 @@ public final class DebounceProducer<Wrapped>: AbstractTransformer<Wrapped,Wrappe
 
 	public init<P>(_ root: P, queue: DispatchQueue, delay: Double) where P: Producer, P.ProducedType == Wrapped {
 		self.delay = delay
-		super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
+		super.init([root], transformationQueue: queue, productionQueue: root.productionQueue)
 	}
 
 	public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
@@ -310,7 +312,7 @@ public final class CachedProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped>
     private var constant: ConstantProducer<Wrapped>? = nil
     
     public init<P>(_ root: P, queue: DispatchQueue) where P:Producer, P.ProducedType == Wrapped {
-        super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
+        super.init([root], transformationQueue: queue, productionQueue: root.productionQueue)
         root.upon { [weak self] signal in
             guard let this = self else { return }
             this.updateConstant(with: signal)
@@ -342,6 +344,19 @@ public final class CachedProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped>
     }
 }
 
+public final class MergeProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped> {
+    public init<P>(_ root: P, queue: DispatchQueue, other: P) where P:Producer, P.ProducedType == Wrapped {
+        super.init([root, other], transformationQueue: queue, productionQueue: DispatchQueue.main)
+    }
+    
+    public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
+        return { [weak self] done in
+            guard self != nil else { return }
+            done(signal)
+        }
+    }
+}
+
 extension Producer {
 	public var any: AnyProducer<ProducedType> {
 		return AnyProducer(self)
@@ -365,5 +380,9 @@ extension Producer {
     
     public func cached(on queue: DispatchQueue = .main) -> CachedProducer<ProducedType> {
         return CachedProducer<ProducedType>.init(self, queue: queue)
+    }
+    
+    public func merge<P>(on queue: DispatchQueue = .main, with other: P) -> MergeProducer<ProducedType> where P:Producer, P.ProducedType == ProducedType {
+        return MergeProducer<ProducedType>.init(AnyProducer(self), queue: queue, other: AnyProducer(other))
     }
 }

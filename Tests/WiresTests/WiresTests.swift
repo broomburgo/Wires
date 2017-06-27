@@ -1,5 +1,6 @@
 import XCTest
 @testable import Wires
+import Foundation
 
 class WiresTests: XCTestCase {
 	var currentWire: Wire? = nil
@@ -7,6 +8,7 @@ class WiresTests: XCTestCase {
 	override func tearDown() {
 		super.tearDown()
 		currentWire?.disconnect()
+        currentWire = nil
 	}
 
 	func testWiresConnect() {
@@ -52,8 +54,10 @@ class WiresTests: XCTestCase {
         
         currentWire = talker.connect(to: listener)
         talker.say(expectedValue)
-        currentWire?.disconnect()
-        talker.say(42)
+        DispatchQueue.main.after(0.25) {
+            self.currentWire?.disconnect()
+            talker.say(42)
+        }
         
         waitForExpectations(timeout: 1)
     }
