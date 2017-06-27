@@ -307,39 +307,38 @@ public final class DebounceProducer<Wrapped>: AbstractTransformer<Wrapped,Wrappe
 }
 
 public final class CachedProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped> {
-    private var cached: ConstantProducer<Wrapped>? = nil
+    private var constant: ConstantProducer<Wrapped>? = nil
     
     public init<P>(_ root: P, queue: DispatchQueue) where P:Producer, P.ProducedType == Wrapped {
         super.init(root, transformationQueue: queue, productionQueue: root.productionQueue)
         root.upon { [weak self] signal in
             guard let this = self else { return }
-            switch signal {
-            case .next(let value):
-                this.cached = ConstantProducer.init(value, productionQueue: this.productionQueue)
-            case .stop:
-                this.cached = nil
-            }
+            this.updateConstant(with: signal)
         }
     }
     
     public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
         return { [weak self] done in
             guard let this = self else { return }
+            this.updateConstant(with: signal)
             done(signal)
-            switch signal {
-            case .next(let value):
-                this.cached = ConstantProducer.init(value, productionQueue: this.productionQueue)
-            case .stop:
-                this.cached = nil
-            }
         }
     }
     
     @discardableResult
     public override func upon(_ callback: @escaping (Signal<Wrapped>) -> ()) -> Self {
-        cached?.upon(callback)
+        constant?.upon(callback)
         super.upon(callback)
         return self
+    }
+    
+    private func updateConstant(with signal: Signal<Wrapped>) {
+        switch signal {
+        case .next(let value):
+            constant = ConstantProducer.init(value, productionQueue: productionQueue)
+        case .stop:
+            constant = nil
+        }
     }
 }
 
