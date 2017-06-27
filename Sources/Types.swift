@@ -362,4 +362,8 @@ extension Producer {
     public func filter(on queue: DispatchQueue = .main, predicate: @escaping (ProducedType) -> Bool) -> FilterProducer<ProducedType> {
         return FilterProducer<ProducedType>.init(self, queue: queue, conditionFunction: predicate)
     }
+    
+    public func cached(on queue: DispatchQueue = .main) -> CachedProducer<ProducedType> {
+        return CachedProducer<ProducedType>.init(self, queue: queue)
+    }
 }
