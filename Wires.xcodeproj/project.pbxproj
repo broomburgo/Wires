@@ -10,6 +10,7 @@
 		382859021EF7DD8500C765DB /* Wires-ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 382859001EF7DD8500C765DB /* Wires-ios.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		382859061EF7DDAD00C765DB /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* Types.swift */; };
 		AA9C81DE1F0101F2006A3B26 /* ProducersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9C81DD1F0101F2006A3B26 /* ProducersTests.swift */; };
+		AAC586C31F026C5F00BAB4D5 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAC586C21F026C5F00BAB4D5 /* Utilities.swift */; };
 		AAF11E191EF967CC00B994AF /* TalkerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF11E181EF967CC00B994AF /* TalkerTests.swift */; };
 		AAF11E1B1EF97EC900B994AF /* ListenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF11E1A1EF97EC900B994AF /* ListenerTests.swift */; };
 		OBJ_20 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* Types.swift */; };
@@ -32,6 +33,7 @@
 		382859001EF7DD8500C765DB /* Wires-ios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Wires-ios.h"; sourceTree = "<group>"; };
 		382859011EF7DD8500C765DB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA9C81DD1F0101F2006A3B26 /* ProducersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProducersTests.swift; sourceTree = "<group>"; };
+		AAC586C21F026C5F00BAB4D5 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		AAF11E181EF967CC00B994AF /* TalkerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TalkerTests.swift; sourceTree = "<group>"; };
 		AAF11E1A1EF97EC900B994AF /* ListenerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListenerTests.swift; sourceTree = "<group>"; };
 		OBJ_11 /* WiresTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiresTests.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				OBJ_8 /* Types.swift */,
+				AAC586C21F026C5F00BAB4D5 /* Utilities.swift */,
 			);
 			path = Sources;
 			sourceTree = SOURCE_ROOT;
@@ -247,6 +250,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				AAC586C31F026C5F00BAB4D5 /* Utilities.swift in Sources */,
 				OBJ_20 /* Types.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

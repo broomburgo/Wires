@@ -12,6 +12,7 @@ class ProducersTests: XCTestCase {
     }
     
     // MARK: MapProducer Tests
+    
     func testMapSingle() {
         let talker = Talker<Int>()
         
@@ -60,7 +61,44 @@ class ProducersTests: XCTestCase {
         waitForExpectations(timeout: 1, handler: nil)
     }
     
+    // MARK: FlatMapProduce Tests
+    
+    func testFlatMapSingle() {
+        let talker1 = Talker<Int>()
+        let talker2 = Talker<String>()
+        
+        let expectedValue1 = 42
+        let expectedValue2 = "42"
+        
+        let willObserve1 = expectation(description: "willObserve1")
+        let willObserve2 = expectation(description: "willObserve2")
+        
+        let listener = Listener<String>.init { signal in
+            switch signal {
+            case .next(let value):
+                XCTAssertEqual(expectedValue2, value)
+                willObserve2.fulfill()
+            case .stop:
+                XCTFail()
+            }
+        }
+        
+        wire = talker1
+            .flatMap { value -> AnyProducer<String> in
+                XCTAssertEqual(expectedValue1, value)
+                willObserve1.fulfill()
+                return AnyProducer<String>.init(talker2)
+            }
+            .connect(to: listener)
+        
+        talker1.say(expectedValue1)
+        DispatchQueue.main.after(0.25) { talker2.say(expectedValue2) }
+        
+        waitForExpectations(timeout: 1, handler: nil)
+    }
+    
     // MARK: FilterProducer Tests
+    
     func testFilter() {
         // Initial settings
         let talker = Talker<Int>()
@@ -93,6 +131,7 @@ class ProducersTests: XCTestCase {
     }
     
     // MARK: CachedProducer Tests
+    
     func testCached() {
         // Initial settings
         let talker = Talker<Int>()
