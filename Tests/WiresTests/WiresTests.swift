@@ -61,4 +61,28 @@ class WiresTests: XCTestCase {
         
         waitForExpectations(timeout: 1)
     }
+
+	func testConsume() {
+		var values: [Int] = []
+
+		let talker = Talker<Int>.init()
+		currentWire = talker.consume { value in
+			values.append(value)
+		}
+
+		talker.say(1)
+		talker.say(2)
+		talker.say(3)
+		talker.mute()
+		talker.say(4)
+		talker.say(5)
+		talker.say(6)
+
+		let willListen = expectation(description: "willListen")
+		DispatchQueue.main.after(0.3) { 
+			XCTAssertEqual(values, [1,2,3])
+			willListen.fulfill()
+		}
+		waitForExpectations(timeout: 1)
+	}
 }

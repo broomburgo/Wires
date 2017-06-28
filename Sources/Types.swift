@@ -30,7 +30,11 @@ public protocol Consumer: class {
 	func update(_ value: Signal<ConsumedType>) -> Self
 }
 
-public final class Wire {
+public protocol Disconnectable {
+	func disconnect()
+}
+
+public final class Wire: Disconnectable {
 
 	private var producer: Any?
 	private var consumer: Any?
@@ -52,6 +56,25 @@ public final class Wire {
 		producer = nil
 		consumer = nil
         connected = false
+	}
+}
+
+public final class DisconnectableBag: Disconnectable {
+	private var disconnectables: [Disconnectable] = []
+
+	public func add(_ value: Disconnectable) {
+		disconnectables.append(value)
+	}
+
+	public func disconnect() {
+		disconnectables.forEach { $0.disconnect() }
+		disconnectables.removeAll()
+	}
+}
+
+extension Disconnectable {
+	public func add(to bag: DisconnectableBag) {
+		bag.add(self)
 	}
 }
 
@@ -415,6 +438,20 @@ public final class CachedProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped>
 }
 
 extension Producer {
+	public func consume(_ callback: @escaping (ProducedType) -> ()) -> Wire {
+		var toDisconnect: Wire? = nil
+		let disconnectable = connect(to: Listener.init { signal in
+			switch signal {
+			case .next(let value):
+				callback(value)
+			case .stop:
+				toDisconnect?.disconnect()
+			}
+		})
+		toDisconnect = disconnectable
+		return disconnectable
+	}
+
 	public var any: AnyProducer<ProducedType> {
 		return AnyProducer(self)
 	}
@@ -449,3 +486,5 @@ extension Producer {
             .map { $0! }
     }
 }
+
+
