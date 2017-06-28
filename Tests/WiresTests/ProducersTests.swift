@@ -138,7 +138,7 @@ class ProducersTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
     
-    func testFlatMapSingle2() {
+    func testFlatMapMultiple() {
         let talker1 = Talker<Int>()
         var talker2: Talker<String>? = nil
         
@@ -184,7 +184,7 @@ class ProducersTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
     
-    func testFlatMapSingle3() {
+    func testFlatMapMultiple2() {
         let talker1 = Talker<Int>()
         
         let expectedValue1 = 42
@@ -227,7 +227,7 @@ class ProducersTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
     
-    func testFlatMapSingle4() {
+    func testFlatMapMultiple3() {
         let talker1 = Talker<Int>()
         weak var talker2: Talker<Int>? = nil
         weak var talker3: Talker<Int>? = nil
@@ -294,7 +294,7 @@ class ProducersTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
     
-//    func testFlatMapSingle5() {
+//    func testFlatMapMultiple4() {
 //        weak var talker1: Talker<Int>? = nil
 //        weak var talker2: Talker<Int>? = nil
 //        weak var talker3: Talker<Int>? = nil
@@ -371,6 +371,41 @@ class ProducersTests: XCTestCase {
 //        
 //        waitForExpectations(timeout: 1)
 //    }
+    
+    func testFlatMapSingleCached() {
+        let talker1 = Talker<Int>()
+        
+        let expectedValue1 = 23
+        let expectedValue2 = "23"
+        
+        let willObserve1 = expectation(description: "willObserve1")
+        let willObserve2 = expectation(description: "willObserve2")
+        
+        let listener = Listener<String>.init { signal in
+            switch signal {
+            case .next(let value):
+                XCTAssertEqual(value, expectedValue2)
+                willObserve2.fulfill()
+            case .stop:
+                XCTFail()
+            }
+        }
+        
+        wire = talker1
+            .cached()
+            .flatMap { value -> AnyProducer<String> in
+                XCTAssertEqual(value, expectedValue1)
+                willObserve1.fulfill()
+                let newTalker = Talker<String>()
+                DispatchQueue.main.after(0.25) { [weak newTalker] in newTalker?.say("\(value)") }
+                return AnyProducer<String>.init(newTalker)
+            }
+            .connect(to: listener)
+        
+         talker1.say(expectedValue1)
+        
+        waitForExpectations(timeout: 1)
+    }
     
     // MARK: FilterProducer Tests
     
