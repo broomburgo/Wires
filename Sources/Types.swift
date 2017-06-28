@@ -156,6 +156,48 @@ public class AnyProducer<A>: Producer {
 	}
 }
 
+class BoxConsumerBase<Wrapped>: Consumer {
+    typealias ConsumedType = Wrapped
+    
+    var productionQueue: DispatchQueue {
+        fatalError()
+    }
+    
+    @discardableResult
+    func update(_ value: Signal<Wrapped>) -> Self {
+        fatalError()
+    }
+}
+
+class BoxConsumer<ConsumerBase: Consumer>: BoxConsumerBase<ConsumerBase.ConsumedType> {
+    let base: ConsumerBase
+    init(base: ConsumerBase) {
+        self.base = base
+    }
+    
+    @discardableResult
+    override func update(_ value: Signal<ConsumerBase.ConsumedType>) -> Self {
+        base.update(value)
+        return self
+    }
+}
+
+public class AnyConsumer<A>: Consumer {
+    public typealias ConsumedType = A
+    
+    fileprivate let box: BoxConsumerBase<A>
+    
+    public init<C: Consumer>(_ base: C) where C.ConsumedType == ConsumedType {
+        self.box = BoxConsumer(base: base)
+    }
+    
+    @discardableResult
+    public func update(_ value: Signal<A>) -> Self {
+        box.update(value)
+        return self
+    }
+}
+
 public final class ConstantProducer<Wrapped>: Producer {
     public typealias ProducedType = Wrapped
     
