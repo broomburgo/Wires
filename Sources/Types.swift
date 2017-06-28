@@ -91,7 +91,7 @@ public final class Talker<A>: Producer {
 
     public let productionQueue: DispatchQueue
     
-    init(productionQueue: DispatchQueue = .main) {
+    public init(productionQueue: DispatchQueue = .main) {
         self.productionQueue = productionQueue
     }
     
