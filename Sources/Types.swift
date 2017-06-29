@@ -135,6 +135,26 @@ public final class Listener<A>: Consumer {
 	}
 }
 
+public final class Accumulator<A>: Consumer {
+	public typealias ConsumedType = A
+
+	public private(set) var values: [A] = []
+
+	public init() {}
+
+	@discardableResult
+	public func receive(_ signal: Signal<A>) -> Accumulator<A> {
+		switch signal {
+		case .next(let value):
+			values.append(value)
+		case .stop:
+			values.removeAll()
+		}
+		return self
+	}
+}
+
+
 class BoxProducerBase<Wrapped>: Producer {
 	typealias ProducedType = Wrapped
     
