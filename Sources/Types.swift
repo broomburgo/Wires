@@ -62,6 +62,8 @@ public final class Wire: Disconnectable {
 public final class DisconnectableBag: Disconnectable {
 	private var disconnectables: [Disconnectable] = []
 
+	public init() {}
+
 	public func add(_ value: Disconnectable) {
 		disconnectables.append(value)
 	}
