@@ -3,7 +3,7 @@ import XCTest
 
 class ListenerTests: XCTestCase {
     
-    func testListenerUpdate() {
+    func testListenerReceive() {
         let expectedValue = 23
         
         let listener = Listener<Int>(listen: { signal in
@@ -15,7 +15,7 @@ class ListenerTests: XCTestCase {
             }
         })
         
-        listener.update(.next(expectedValue))
+        listener.receive(.next(expectedValue))
     }
     
 }

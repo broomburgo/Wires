@@ -27,7 +27,7 @@ public protocol Consumer: class {
 	associatedtype ConsumedType
 
 	@discardableResult
-	func update(_ value: Signal<ConsumedType>) -> Self
+	func receive(_ value: Signal<ConsumedType>) -> Self
 }
 
 public protocol Disconnectable {
@@ -48,7 +48,7 @@ public final class Wire: Disconnectable {
 
         producer.upon { [weak self] signal in
             guard let this = self, this.connected else { return }
-            consumer.update(signal)
+            consumer.receive(signal)
         }
 	}
 
@@ -127,7 +127,7 @@ public final class Listener<A>: Consumer {
 	}
 
 	@discardableResult
-	public func update(_ value: Signal<A>) -> Listener<A> {
+	public func receive(_ value: Signal<A>) -> Listener<A> {
 		listen(value)
 		return self
 	}
@@ -187,7 +187,7 @@ class BoxConsumerBase<Wrapped>: Consumer {
     }
     
     @discardableResult
-    func update(_ value: Signal<Wrapped>) -> Self {
+    func receive(_ value: Signal<Wrapped>) -> Self {
         fatalError()
     }
 }
@@ -199,8 +199,8 @@ class BoxConsumer<ConsumerBase: Consumer>: BoxConsumerBase<ConsumerBase.Consumed
     }
     
     @discardableResult
-    override func update(_ value: Signal<ConsumerBase.ConsumedType>) -> Self {
-        base.update(value)
+    override func receive(_ value: Signal<ConsumerBase.ConsumedType>) -> Self {
+        base.receive(value)
         return self
     }
 }
@@ -215,8 +215,8 @@ public class AnyConsumer<A>: Consumer {
     }
     
     @discardableResult
-    public func update(_ value: Signal<A>) -> Self {
-        box.update(value)
+    public func receive(_ value: Signal<A>) -> Self {
+        box.receive(value)
         return self
     }
 }
@@ -273,7 +273,7 @@ open class AbstractTransformer<Source,Target>: Transformer {
         self.productionQueue = productionQueue
         self.talker = Talker<Target>.init(productionQueue: productionQueue)
         for root in roots {
-            root.upon { [weak self] signal in self?.listener.update(signal) }
+            root.upon { [weak self] signal in self?.listener.receive(signal) }
         }
 	}
 
@@ -408,14 +408,14 @@ public final class CachedProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped>
         super.init([root], transformationQueue: queue, productionQueue: root.productionQueue)
         root.upon { [weak self] signal in
             guard let this = self else { return }
-            this.updateConstant(with: signal)
+            this.receiveConstant(with: signal)
         }
     }
     
     public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
         return { [weak self] done in
             guard let this = self else { return }
-            this.updateConstant(with: signal)
+            this.receiveConstant(with: signal)
             done(signal)
         }
     }
@@ -427,7 +427,7 @@ public final class CachedProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped>
         return self
     }
     
-    private func updateConstant(with signal: Signal<Wrapped>) {
+    private func receiveConstant(with signal: Signal<Wrapped>) {
         switch signal {
         case .next(let value):
             constant = ConstantProducer.init(value, productionQueue: productionQueue)
