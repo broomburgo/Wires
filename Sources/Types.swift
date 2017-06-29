@@ -27,7 +27,7 @@ public protocol Consumer: class {
 	associatedtype ConsumedType
 
 	@discardableResult
-	func receive(_ value: Signal<ConsumedType>) -> Self
+	func receive(_ signal: Signal<ConsumedType>) -> Self
 }
 
 public protocol Disconnectable {
@@ -86,8 +86,9 @@ extension Producer {
 	}
 }
 
-public final class Talker<A>: Producer {
+public final class Talker<A>: Producer, Consumer {
 	public typealias ProducedType = A
+	public typealias ConsumedType = A
 
 	private var callbacks: [(Signal<A>) -> ()] = []
 
@@ -115,6 +116,17 @@ public final class Talker<A>: Producer {
 	@discardableResult
 	public func upon(_ callback: @escaping (Signal<A>) -> ()) -> Talker<A> {
 		callbacks.append(callback)
+		return self
+	}
+
+	@discardableResult
+	public func receive(_ signal: Signal<A>) -> Self {
+		switch signal {
+		case .next(let value):
+			say(value)
+		case .stop:
+			mute()
+		}
 		return self
 	}
 }
