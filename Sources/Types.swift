@@ -458,19 +458,19 @@ extension Producer {
 		return AnyProducer(self)
 	}
 
-	public func map<A>(on queue: DispatchQueue = .main, transform: @escaping (ProducedType) -> A) -> MapProducer<ProducedType,A> {
+	public func map<A>(on queue: DispatchQueue = .main, _ transform: @escaping (ProducedType) -> A) -> MapProducer<ProducedType,A> {
 		return MapProducer<ProducedType,A>.init(self, queue: queue, mappingFunction: transform)
 	}
 
-	public func flatMap<A>(on queue: DispatchQueue = .main, transform: @escaping (ProducedType) -> AnyProducer<A>) -> FlatMapProducer<ProducedType,A> {
+	public func flatMap<A>(on queue: DispatchQueue = .main, _ transform: @escaping (ProducedType) -> AnyProducer<A>) -> FlatMapProducer<ProducedType,A> {
 		return FlatMapProducer<ProducedType,A>.init(self, queue: queue, flatMappingFunction: transform)
 	}
 
-	public func debounce(on queue: DispatchQueue = .main, delay: Double) -> DebounceProducer<ProducedType> {
+	public func debounce(on queue: DispatchQueue = .main, _ delay: Double) -> DebounceProducer<ProducedType> {
 		return DebounceProducer<ProducedType>.init(self, queue: queue, delay: delay)
 	}
     
-    public func filter(on queue: DispatchQueue = .main, predicate: @escaping (ProducedType) -> Bool) -> FilterProducer<ProducedType> {
+    public func filter(on queue: DispatchQueue = .main, _ predicate: @escaping (ProducedType) -> Bool) -> FilterProducer<ProducedType> {
         return FilterProducer<ProducedType>.init(self, queue: queue, conditionFunction: predicate)
     }
     
@@ -478,12 +478,12 @@ extension Producer {
         return CachedProducer<ProducedType>.init(self, queue: queue)
     }
     
-    public func merge<P>(on queue: DispatchQueue = .main, with other: P) -> MergeProducer<ProducedType> where P:Producer, P.ProducedType == ProducedType {
+    public func merge<P>(on queue: DispatchQueue = .main, _ other: P) -> MergeProducer<ProducedType> where P:Producer, P.ProducedType == ProducedType {
         return MergeProducer<ProducedType>.init(AnyProducer(self), queue: queue, other: AnyProducer(other))
     }
     
-    public func mapSome<A>(on queue: DispatchQueue = .main, transform: @escaping (ProducedType) -> A?) -> MapProducer<A?,A> {
-        return map(transform: transform)
+    public func mapSome<A>(on queue: DispatchQueue = .main, _ transform: @escaping (ProducedType) -> A?) -> MapProducer<A?,A> {
+        return map(transform)
             .filter { $0 != nil }
             .map { $0! }
     }

@@ -580,7 +580,7 @@ class ProducersTests: XCTestCase {
             }
         }
         
-        wire = talker1.merge(with: talker2).connect(to: listener)
+        wire = talker1.merge(talker2).connect(to: listener)
         
         talker1.say(expectedValue1)
         talker2.say(expectedValue2)
@@ -625,7 +625,7 @@ class ProducersTests: XCTestCase {
             }
         }
         
-        wire = talker.debounce(delay: 0.25).connect(to: listener)
+        wire = talker.debounce(0.25).connect(to: listener)
         
         talker.say(unexpectedValue1)
         DispatchQueue.main.after(0.1) {
