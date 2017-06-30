@@ -294,84 +294,6 @@ class ProducersTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
     
-//    func testFlatMapMultiple4() {
-//        weak var talker1: Talker<Int>? = nil
-//        weak var talker2: Talker<Int>? = nil
-//        weak var talker3: Talker<Int>? = nil
-//        
-//        var array1: [Int] = []
-//        var array2: [Int] = []
-//        var array3: [Int] = []
-//        
-//        var observedOnce = false
-//        
-//        var talker: Talker<Int>? = Talker<Int>.init()
-//        wire = talker!.flatMap { _ in
-//            if observedOnce {
-//                let newTalker = Talker<Int>()
-//                talker3 = newTalker
-//                newTalker.upon { signal in
-//                    switch signal {
-//                    case .next(let value):
-//                        array3.append(value)
-//                    case .stop:
-//                        break
-//                    }
-//                }
-//                return AnyProducer.init(newTalker)
-//            } else {
-//                let newTalker = Talker<Int>()
-//                talker2 = newTalker
-//                newTalker.upon { signal in
-//                    switch signal {
-//                    case .next(let value):
-//                        array2.append(value)
-//                    case .stop:
-//                        break
-//                    }
-//                }
-//                observedOnce = true
-//                return AnyProducer.init(newTalker)
-//            } }
-//            .connect(to: Listener<Int>.init { [weak self] signal in
-//                switch signal {
-//                case .next(let value):
-//                    array1.append(value)
-//                case .stop:
-//                    self?.wire?.disconnect()
-//                }
-//            })
-//        
-//        talker1 = talker
-//        talker = nil
-//        
-//        talker1!.say(1)
-//        talker1!.say(2)
-//        
-//        let willObserve = expectation(description: "willObserve")
-//        
-//        DispatchQueue.main.after(0.1) {
-//            talker2?.say(1)
-//            talker3?.say(1)
-//            DispatchQueue.main.after(0.1) {
-//                talker2?.say(2)
-//                talker3?.mute()
-//                DispatchQueue.main.after(0.1) {
-//                    talker2?.say(3)
-//                    talker3?.say(3)
-//                    DispatchQueue.main.after(0.1) {
-//                        XCTAssertEqual(array1, [1,1,2])
-//                        XCTAssertEqual(array2, [1,2])
-//                        XCTAssertEqual(array3, [1])
-//                        willObserve.fulfill()
-//                    }
-//                }
-//            }
-//        }
-//        
-//        waitForExpectations(timeout: 1)
-//    }
-    
     func testFlatMapSingleCached() {
         let talker1 = Talker<Int>()
         
@@ -687,5 +609,23 @@ class ProducersTests: XCTestCase {
         
         waitForExpectations(timeout: 2)
     }
-    
+
+
+	//MARK: - more stuff
+
+	func testCrash() {
+		let talker = Talker<Int>()
+
+		let rx_string = talker.any.map { "\($0)" }
+
+		let willConsume = expectation(description: "willConsume")
+		wire = rx_string.consume {
+			XCTAssertEqual($0, "42")
+			willConsume.fulfill()
+		}
+
+		talker.say(42)
+
+		waitForExpectations(timeout: 1)
+	}
 }

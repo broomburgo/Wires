@@ -186,6 +186,10 @@ class BoxProducer<ProducerBase: Producer>: BoxProducerBase<ProducerBase.Produced
 		self.base = base
 	}
 
+	override var productionQueue: DispatchQueue {
+		return base.productionQueue
+	}
+
 	@discardableResult
 	override func upon(_ callback: @escaping (Signal<ProducerBase.ProducedType>) -> ()) -> Self {
 		base.upon(callback)
