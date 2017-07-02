@@ -12,7 +12,7 @@ class WiresTests: XCTestCase {
 	}
 
 	func testWiresConnect() {
-		let p = Talker<Int>.init()
+		let p = Speaker<Int>.init()
 
 		let sentValue = 42
 		let expectedValue = "\(sentValue)"
@@ -41,7 +41,7 @@ class WiresTests: XCTestCase {
     func testWiresDisconnect() {
         let expectedValue = 23
         let willDisconnectProperly = expectation(description: "willDisconnectProperly")
-        let talker = Talker<Int>()
+        let speaker = Speaker<Int>()
         let listener = Listener<Int>(listen : { signal in
             switch signal {
             case .next(let value):
@@ -52,11 +52,11 @@ class WiresTests: XCTestCase {
             willDisconnectProperly.fulfill()
         })
         
-        currentWire = talker.connect(to: listener)
-        talker.say(expectedValue)
+        currentWire = speaker.connect(to: listener)
+        speaker.say(expectedValue)
         DispatchQueue.main.after(0.25) {
             self.currentWire?.disconnect()
-            talker.say(42)
+            speaker.say(42)
         }
         
         waitForExpectations(timeout: 1)
@@ -65,18 +65,18 @@ class WiresTests: XCTestCase {
 	func testConsume() {
 		var values: [Int] = []
 
-		let talker = Talker<Int>.init()
-		currentWire = talker.consume { value in
+		let speaker = Speaker<Int>.init()
+		currentWire = speaker.consume { value in
 			values.append(value)
 		}
 
-		talker.say(1)
-		talker.say(2)
-		talker.say(3)
-		talker.mute()
-		talker.say(4)
-		talker.say(5)
-		talker.say(6)
+		speaker.say(1)
+		speaker.say(2)
+		speaker.say(3)
+		speaker.mute()
+		speaker.say(4)
+		speaker.say(5)
+		speaker.say(6)
 
 		let willListen = expectation(description: "willListen")
 		DispatchQueue.main.after(0.3) { 

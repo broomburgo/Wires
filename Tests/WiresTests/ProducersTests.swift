@@ -14,7 +14,7 @@ class ProducersTests: XCTestCase {
     // MARK: MapProducer Tests
     
     func testMapSingle() {
-        let talker = Talker<Int>()
+        let speaker = Speaker<Int>()
         
         let sentValue1 = 42
         let expectedValue1 = "42"
@@ -29,22 +29,22 @@ class ProducersTests: XCTestCase {
                 XCTFail()
             }
         }
-        wire = talker.map{ "\($0)" }.connect(to: listener)
+        wire = speaker.map{ "\($0)" }.connect(to: listener)
         
-        talker.say(sentValue1)
+        speaker.say(sentValue1)
         
         waitForExpectations(timeout: 1, handler: nil)
     }
     
     func testMapSingleCached() {
-        let talker = Talker<Int>()
-        let cached = talker.cached()
+        let speaker = Speaker<Int>()
+        let cached = speaker.cached()
         
         let sentValue1 = 42
         let expectedValue1 = "42"
         let willObserve1 = expectation(description: "willObserve1")
         
-        talker.say(sentValue1)
+        speaker.say(sentValue1)
         
         let listener = Listener<String>.init { signal in
             switch signal {
@@ -62,7 +62,7 @@ class ProducersTests: XCTestCase {
     }
     
     func testMapChained() {
-        let talker = Talker<Int>()
+        let speaker = Speaker<Int>()
         
         let sentValue1 = 23
         let expectedValue1 = 46
@@ -80,7 +80,7 @@ class ProducersTests: XCTestCase {
             }
         }
         
-        wire = talker
+        wire = speaker
             .map { $0 * 2 }
             .upon { signal in
                 switch signal {
@@ -94,7 +94,7 @@ class ProducersTests: XCTestCase {
             .map { "\($0)" }
             .connect(to: listener)
         
-        talker.say(sentValue1)
+        speaker.say(sentValue1)
         
         waitForExpectations(timeout: 1)
     }
@@ -102,8 +102,8 @@ class ProducersTests: XCTestCase {
     // MARK: FlatMapProduce Tests
     
     func testFlatMapSingle() {
-        let talker1 = Talker<Int>()
-        var talker2: Talker<String>? = nil
+        let speaker1 = Speaker<Int>()
+        var speaker2: Speaker<String>? = nil
         
         let expectedValue1 = 42
         let expectedValue2 = "42"
@@ -121,26 +121,26 @@ class ProducersTests: XCTestCase {
             }
         }
         
-        wire = talker1
+        wire = speaker1
             .flatMap { value -> AnyProducer<String> in
                 XCTAssertEqual(expectedValue1, value)
                 willObserve1.fulfill()
-                let newTalker = Talker<String>()
-                DispatchQueue.main.after(0.25) { [weak newTalker] in newTalker?.say(expectedValue2) }
-                talker2 = newTalker
-                XCTAssertNotNil(talker2)
-                return AnyProducer<String>.init(newTalker)
+                let newSpeaker = Speaker<String>()
+                DispatchQueue.main.after(0.25) { [weak newSpeaker] in newSpeaker?.say(expectedValue2) }
+                speaker2 = newSpeaker
+                XCTAssertNotNil(speaker2)
+                return AnyProducer<String>.init(newSpeaker)
             }
             .connect(to: listener)
         
-        talker1.say(expectedValue1)
+        speaker1.say(expectedValue1)
         
         waitForExpectations(timeout: 1)
     }
     
     func testFlatMapMultiple() {
-        let talker1 = Talker<Int>()
-        var talker2: Talker<String>? = nil
+        let speaker1 = Speaker<Int>()
+        var speaker2: Speaker<String>? = nil
         
         let expectedValue1 = 42
         let expectedValue2 = 23
@@ -168,24 +168,24 @@ class ProducersTests: XCTestCase {
             }
         }
         
-        wire = talker1
+        wire = speaker1
             .flatMap { value -> AnyProducer<String> in
-                let newTalker = Talker<String>()
-                DispatchQueue.main.after(0.25) { [weak newTalker] in newTalker?.say("\(value)") }
-                talker2 = newTalker
-                XCTAssertNotNil(talker2)
-                return AnyProducer<String>.init(newTalker)
+                let newSpeaker = Speaker<String>()
+                DispatchQueue.main.after(0.25) { [weak newSpeaker] in newSpeaker?.say("\(value)") }
+                speaker2 = newSpeaker
+                XCTAssertNotNil(speaker2)
+                return AnyProducer<String>.init(newSpeaker)
             }
             .connect(to: listener)
         
-        talker1.say(expectedValue1)
-        talker1.say(expectedValue2)
+        speaker1.say(expectedValue1)
+        speaker1.say(expectedValue2)
         
         waitForExpectations(timeout: 1)
     }
     
     func testFlatMapMultiple2() {
-        let talker1 = Talker<Int>()
+        let speaker1 = Speaker<Int>()
         
         let expectedValue1 = 42
         let expectedValue2 = 23
@@ -213,24 +213,24 @@ class ProducersTests: XCTestCase {
             }
         }
         
-        wire = talker1
+        wire = speaker1
             .flatMap { value -> AnyProducer<String> in
-                let newTalker = Talker<String>()
-                DispatchQueue.main.after(0.25) { [weak newTalker] in newTalker?.say("\(value)") }
-                return AnyProducer<String>.init(newTalker)
+                let newSpeaker = Speaker<String>()
+                DispatchQueue.main.after(0.25) { [weak newSpeaker] in newSpeaker?.say("\(value)") }
+                return AnyProducer<String>.init(newSpeaker)
             }
             .connect(to: listener)
         
-        talker1.say(expectedValue1)
-        talker1.say(expectedValue2)
+        speaker1.say(expectedValue1)
+        speaker1.say(expectedValue2)
         
         waitForExpectations(timeout: 1)
     }
     
     func testFlatMapMultiple3() {
-        let talker1 = Talker<Int>()
-        weak var talker2: Talker<Int>? = nil
-        weak var talker3: Talker<Int>? = nil
+        let speaker1 = Speaker<Int>()
+        weak var speaker2: Speaker<Int>? = nil
+        weak var speaker3: Speaker<Int>? = nil
         
         var array2: [Int] = []
         var array3: [Int] = []
@@ -239,11 +239,11 @@ class ProducersTests: XCTestCase {
         
         var observedOnce = false
         
-        wire = talker1.flatMap { _ in
+        wire = speaker1.flatMap { _ in
             if observedOnce {
-                let newTalker = Talker<Int>()
-                talker3 = newTalker
-                newTalker.upon { signal in
+                let newSpeaker = Speaker<Int>()
+                speaker3 = newSpeaker
+                newSpeaker.upon { signal in
                     switch signal {
                     case .next(let value):
                         array3.append(value)
@@ -251,11 +251,11 @@ class ProducersTests: XCTestCase {
                         break
                     }
                 }
-                return AnyProducer.init(newTalker)
+                return AnyProducer.init(newSpeaker)
             } else {
-                let newTalker = Talker<Int>()
-                talker2 = newTalker
-                newTalker.upon { signal in
+                let newSpeaker = Speaker<Int>()
+                speaker2 = newSpeaker
+                newSpeaker.upon { signal in
                     switch signal {
                     case .next(let value):
                         array2.append(value)
@@ -264,24 +264,24 @@ class ProducersTests: XCTestCase {
                     }
                 }
                 observedOnce = true
-                return AnyProducer.init(newTalker)
+                return AnyProducer.init(newSpeaker)
             } }
             .connect(to: listener)
         
-        talker1.say(1)
-        talker1.say(2)
+        speaker1.say(1)
+        speaker1.say(2)
         
         let willObserve = expectation(description: "willObserve")
         
         DispatchQueue.main.after(0.1) {
-            talker2?.say(1)
-            talker3?.say(1)
+            speaker2?.say(1)
+            speaker3?.say(1)
             DispatchQueue.main.after(0.1) {
-                talker2?.say(2)
-                talker3?.mute()
+                speaker2?.say(2)
+                speaker3?.mute()
                 DispatchQueue.main.after(0.1) {
-                    talker2?.say(3)
-                    talker3?.say(3)
+                    speaker2?.say(3)
+                    speaker3?.say(3)
                     DispatchQueue.main.after(0.1) {
                         XCTAssertEqual(array2, [1,2,3])
                         XCTAssertEqual(array3, [1])
@@ -295,7 +295,7 @@ class ProducersTests: XCTestCase {
     }
     
     func testFlatMapSingleCached() {
-        let talker1 = Talker<Int>()
+        let speaker1 = Speaker<Int>()
         
         let expectedValue1 = 23
         let expectedValue2 = "23"
@@ -313,18 +313,18 @@ class ProducersTests: XCTestCase {
             }
         }
         
-        wire = talker1
+        wire = speaker1
             .cached()
             .flatMap { value -> AnyProducer<String> in
                 XCTAssertEqual(value, expectedValue1)
                 willObserve1.fulfill()
-                let newTalker = Talker<String>()
-                DispatchQueue.main.after(0.25) { [weak newTalker] in newTalker?.say("\(value)") }
-                return AnyProducer<String>.init(newTalker)
+                let newSpeaker = Speaker<String>()
+                DispatchQueue.main.after(0.25) { [weak newSpeaker] in newSpeaker?.say("\(value)") }
+                return AnyProducer<String>.init(newSpeaker)
             }
             .connect(to: listener)
         
-         talker1.say(expectedValue1)
+         speaker1.say(expectedValue1)
         
         waitForExpectations(timeout: 1)
     }
@@ -333,7 +333,7 @@ class ProducersTests: XCTestCase {
     
     func testFilter() {
         // Initial settings
-        let talker = Talker<Int>()
+        let speaker = Speaker<Int>()
         
         let value1 = 23
         let value2 = 42
@@ -353,11 +353,11 @@ class ProducersTests: XCTestCase {
         }
         
         // Core functionality
-        wire = talker.filter { $0 % 2 == 0 }.connect(to: listener)
+        wire = speaker.filter { $0 % 2 == 0 }.connect(to: listener)
         
         // Execution
-        talker.say(value1)
-        talker.say(value2)
+        speaker.say(value1)
+        speaker.say(value2)
         
         waitForExpectations(timeout: 1)
     }
@@ -366,7 +366,7 @@ class ProducersTests: XCTestCase {
     
     func testCached() {
         // Initial settings
-        let talker = Talker<Int>()
+        let speaker = Speaker<Int>()
         
         let expectedValue1 = 23
         let expectedValue2 = 42
@@ -394,23 +394,23 @@ class ProducersTests: XCTestCase {
         }
         
         // Core functionality
-        wire = talker.cached().connect(to: listener)
+        wire = speaker.cached().connect(to: listener)
         
         // Execution
-        talker.say(expectedValue1)
-        talker.say(expectedValue2)
+        speaker.say(expectedValue1)
+        speaker.say(expectedValue2)
         
         waitForExpectations(timeout: 1)
     }
     
     func testCachedTwice() {
-        let talker = Talker<Int>()
+        let speaker = Speaker<Int>()
         
         let expectedValue = 23
         
-        let cached = talker.cached()
+        let cached = speaker.cached()
         
-        talker.say(expectedValue)
+        speaker.say(expectedValue)
         
         let willObserve1 = expectation(description: "willObserve1")
         let willObserve2 = expectation(description: "willObserve2")
@@ -439,13 +439,13 @@ class ProducersTests: XCTestCase {
     }
     
     func testCachedAny() {
-        let talker = Talker<Int>()
+        let speaker = Speaker<Int>()
         
         let expectedValue1 = 23
         
-        let cached = AnyProducer.init(talker.cached())
+        let cached = AnyProducer.init(speaker.cached())
         
-        talker.say(expectedValue1)
+        speaker.say(expectedValue1)
         
         let willObserve1 = expectation(description: "willObserve1")
         let willObserve2 = expectation(description: "willObserve2")
@@ -470,7 +470,7 @@ class ProducersTests: XCTestCase {
             }
         }
         
-        talker.say(expectedValue2)
+        speaker.say(expectedValue2)
         
         waitForExpectations(timeout: 1, handler: nil)
     }
@@ -478,8 +478,8 @@ class ProducersTests: XCTestCase {
     // MARK: MergeProducer Tests
     
     func testMerge() {
-        let talker1 = Talker<Int>()
-        let talker2 = Talker<Int>()
+        let speaker1 = Speaker<Int>()
+        let speaker2 = Speaker<Int>()
         
         let expectedValue1 = 23
         let expectedValue2 = 42
@@ -502,10 +502,10 @@ class ProducersTests: XCTestCase {
             }
         }
         
-        wire = talker1.merge(talker2).connect(to: listener)
+        wire = speaker1.merge(speaker2).connect(to: listener)
         
-        talker1.say(expectedValue1)
-        talker2.say(expectedValue2)
+        speaker1.say(expectedValue1)
+        speaker2.say(expectedValue2)
         
         waitForExpectations(timeout: 1)
     }
@@ -513,7 +513,7 @@ class ProducersTests: XCTestCase {
     // MARK: DebounceProducer Tests
     
     func testDebounce() {
-        let talker = Talker<Int>()
+        let speaker = Speaker<Int>()
         
         let unexpectedValue1 = 1
         let unexpectedValue2 = 2
@@ -547,25 +547,25 @@ class ProducersTests: XCTestCase {
             }
         }
         
-        wire = talker.debounce(0.25).connect(to: listener)
+        wire = speaker.debounce(0.25).connect(to: listener)
         
-        talker.say(unexpectedValue1)
+        speaker.say(unexpectedValue1)
         DispatchQueue.main.after(0.1) {
-            talker.say(unexpectedValue2)
+            speaker.say(unexpectedValue2)
             DispatchQueue.main.after(0.1) {
-                talker.say(expectedValue1)
+                speaker.say(expectedValue1)
                 DispatchQueue.main.after(0.3) {
-                    talker.say(unexpectedValue3)
+                    speaker.say(unexpectedValue3)
                     DispatchQueue.main.after(0.1) {
-                        talker.say(unexpectedValue4)
+                        speaker.say(unexpectedValue4)
                         DispatchQueue.main.after(0.1) {
-                            talker.say(expectedValue2)
+                            speaker.say(expectedValue2)
                             DispatchQueue.main.after(0.3) {
-                                talker.say(unexpectedValue5)
+                                speaker.say(unexpectedValue5)
                                 DispatchQueue.main.after(0.1) {
-                                    talker.say(unexpectedValue6)
+                                    speaker.say(unexpectedValue6)
                                     DispatchQueue.main.after(0.1) {
-                                        talker.say(unexpectedValue7)
+                                        speaker.say(unexpectedValue7)
                                         DispatchQueue.main.after(0.1) {
                                             willFinish.fulfill()
                                         }
@@ -584,7 +584,7 @@ class ProducersTests: XCTestCase {
     // MARK: mapSome Tests
     
     func testMapSome() {
-        let talker = Talker<Int?>()
+        let speaker = Speaker<Int?>()
         
         let expectedValue1: Int? = 23
         let unexpectedValue: Int? = nil
@@ -603,9 +603,9 @@ class ProducersTests: XCTestCase {
             }
         }
         
-        wire = talker.mapSome { $0 }.connect(to: listener)
+        wire = speaker.mapSome { $0 }.connect(to: listener)
         
-        array.forEach(talker.say)
+        array.forEach(speaker.say)
         
         waitForExpectations(timeout: 2)
     }
@@ -614,9 +614,9 @@ class ProducersTests: XCTestCase {
 	//MARK: - more stuff
 
 	func testCrash() {
-		let talker = Talker<Int>()
+		let speaker = Speaker<Int>()
 
-		let rx_string = talker.any.map { "\($0)" }
+		let rx_string = speaker.any.map { "\($0)" }
 
 		let willConsume = expectation(description: "willConsume")
 		wire = rx_string.consume {
@@ -624,7 +624,7 @@ class ProducersTests: XCTestCase {
 			willConsume.fulfill()
 		}
 
-		talker.say(42)
+		speaker.say(42)
 
 		waitForExpectations(timeout: 1)
 	}

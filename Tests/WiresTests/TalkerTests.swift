@@ -1,31 +1,31 @@
 import XCTest
 @testable import Wires
 
-class TalkerTests: XCTestCase {
+class SpeakerTests: XCTestCase {
     
-    func testTalkerSendSingle(){
-        let talker = Talker<Int>()
+    func testSpeakerSendSingle(){
+        let speaker = Speaker<Int>()
         
         let expectedValue = 23
         
-        talker.upon { signal in
+        speaker.upon { signal in
             if case .next(let value) = signal {
                 XCTAssertEqual(value, expectedValue)
             }
         }
         
-        talker.say(expectedValue)
+        speaker.say(expectedValue)
 }
     
-    func testTalkerSendMultiple(){
-        let talker = Talker<Int>()
+    func testSpeakerSendMultiple(){
+        let speaker = Speaker<Int>()
         
         let expectedValue1 = 23
         let expectedValue2 = 24
         
         var observeOnce = false
         
-        talker.upon { signal in
+        speaker.upon { signal in
             switch (signal, observeOnce) {
             case (.next(let value), false):
                 XCTAssertEqual(value, expectedValue1)
@@ -37,12 +37,12 @@ class TalkerTests: XCTestCase {
             }
         }
         
-        talker.say(expectedValue1)
-        talker.say(expectedValue2)
+        speaker.say(expectedValue1)
+        speaker.say(expectedValue2)
     }
     
-    func testTalkerStop() {
-        let talker = Talker<Int>()
+    func testSpeakerStop() {
+        let speaker = Speaker<Int>()
         
         let expetectedValue1 = 23
         let expetectedValue2 = 24
@@ -50,7 +50,7 @@ class TalkerTests: XCTestCase {
         
         var observeOnce = false
         
-        talker.upon { signal in
+        speaker.upon { signal in
             switch (signal, observeOnce) {
             case (.next(let value), false):
                 XCTAssertEqual(value, expetectedValue1)
@@ -62,10 +62,10 @@ class TalkerTests: XCTestCase {
             }
         }
         
-        talker.say(expetectedValue1)
-        talker.mute()
-        talker.say(expetectedValue2)
-        talker.say(expetectedValue3)
+        speaker.say(expetectedValue1)
+        speaker.mute()
+        speaker.say(expetectedValue2)
+        speaker.say(expetectedValue3)
 }
     
 }
