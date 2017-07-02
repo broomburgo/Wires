@@ -1,0 +1,11 @@
+language: objective-c
+osx_image: xcode8.3
+xcode_project: Wires.xcodeproj
+xcode_scheme: Wires
+xcode_sdk: macosx10.12
+
+script:
+  - xcodebuild clean build test -project "Wires.xcodeproj" -scheme "Wires" -destination 'generic/platform=OSX'
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

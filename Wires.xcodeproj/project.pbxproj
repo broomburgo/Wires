@@ -47,6 +47,8 @@
 		3859B7991F09193500B4E260 /* Connections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Connections.swift; sourceTree = "<group>"; };
 		3859B79C1F091A7C00B4E260 /* TypeErasers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeErasers.swift; sourceTree = "<group>"; };
 		3859B79F1F091D6500B4E260 /* ConsumerTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConsumerTypes.swift; sourceTree = "<group>"; };
+		3859B7A21F092DA600B4E260 /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
+		3859B7A31F092DA600B4E260 /* codecov.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = codecov.yml; sourceTree = "<group>"; };
 		AA9C81DD1F0101F2006A3B26 /* ProducersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProducersTests.swift; sourceTree = "<group>"; };
 		AAC586C21F026C5F00BAB4D5 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Utilities.swift; path = ../Utilities.swift; sourceTree = "<group>"; };
 		AAF11E181EF967CC00B994AF /* TalkerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TalkerTests.swift; sourceTree = "<group>"; };
@@ -120,6 +122,8 @@
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
+				3859B7A21F092DA600B4E260 /* .travis.yml */,
+				3859B7A31F092DA600B4E260 /* codecov.yml */,
 				OBJ_7 /* Sources */,
 				OBJ_9 /* Tests */,
 				382858FF1EF7DD8500C765DB /* Wires-ios */,
