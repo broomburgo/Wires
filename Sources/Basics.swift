@@ -14,18 +14,29 @@ public enum Signal<A> {
     }
 }
 
-public protocol Producer: class {
+public protocol ProductionQueueOwner {
+	var productionQueue: DispatchQueue { get }
+}
+
+public protocol Producer: class, ProductionQueueOwner {
     associatedtype ProducedType
-    
-    var productionQueue: DispatchQueue { get }
     
     @discardableResult
     func upon(_ callback: @escaping (Signal<ProducedType>) -> ()) -> Self
 }
 
+public protocol TransformationQueueOwner {
+	var transformationQueue: DispatchQueue { get }
+}
+
+public protocol Transformer: Producer, TransformationQueueOwner {
+	associatedtype TransformedType
+	func transform(_ value: Signal<TransformedType>) -> (@escaping (Signal<ProducedType>) -> ()) -> ()
+}
+
 public protocol Consumer: class {
-    associatedtype ConsumedType
-    
-    @discardableResult
-    func receive(_ signal: Signal<ConsumedType>) -> Self
+	associatedtype ConsumedType
+
+	@discardableResult
+	func receive(_ signal: Signal<ConsumedType>) -> Self
 }
