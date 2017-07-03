@@ -18,10 +18,10 @@ I actually started building FRP libraries to educate myself about the topic, but
 
 ## What's inside
 
-In `Basics.swift` are defined the 4 basic ingredients: the `Signal` type, along with 3 protocols, `Producer`, `Transformer` and `Consumer`. Because everything is defined with protocols, you could make any type you want conform to a particular interface, and the define specific semantics for that type (for example, a `UIViewController` could be a `Consumer` of a `ViewModel`).
+In `Basics.swift` are defined the 4 basic ingredients: the `Signal` type, along with 3 protocols, `Producer`, `Transformer` and `Consumer`. Because everything is defined with protocols, you can make any type you want conform to a particular interface, and then define specific semantics for that type (for example, a `UIViewController` could be a `Consumer` of a `ViewModel`).
 
-In `Connections.swift` is defined the `Wire` class: it allows to *connect* a `Producer` and a `Consumer` in a type-safe way, and handles the memory ownership.
+In `Connections.swift` is defined the `Wire` class: it allows to *connect* a `Producer` to a `Consumer` in a type-safe way, while handling the memory ownership.
 
-In `Producers.swift`, `Transformers.swift` and `Consumers.swift` are defined many useful concrete types to start with. *Transformers* are usually referred as *Operators* (like `map`, `flatMap`, `debounce` et cetera).
+In `Producers.swift`, `Transformers.swift` and `Consumers.swift` are defined many useful concrete types to start with. *Transformers* are usually referred as *Operators* in other libraries (like `map`, `flatMap`, `debounce` et cetera).
 
 The other files contain the necessary type erasers, and some utilities.
