@@ -59,7 +59,7 @@ public final class Fixed<T>: Producer {
     public typealias ProducedType = T
     
     public var productionQueue: DispatchQueue
-    fileprivate let value: T
+    public let value: T
     
     public init(_ value: T, productionQueue: DispatchQueue = .main) {
         self.value = value

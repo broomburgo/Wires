@@ -230,6 +230,26 @@ public final class CachedProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped>
 
 // MARK: -
 
+public final class DistinctProducer<Wrapped: Equatable>: AbstractTransformer<Wrapped,Wrapped> {
+	private var last: Signal<Wrapped>?
+
+	public init<P>(_ root: P, queue: DispatchQueue?) where P:Producer, P.ProducedType == Wrapped {
+		let transformationQueue = queue ?? (root as? TransformationQueueOwner)?.transformationQueue ?? .main
+		super.init([root], transformationQueue: transformationQueue, productionQueue: root.productionQueue)
+	}
+
+	public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
+		return { [weak self] done in
+			guard let this = self else { return }
+			if let previous = this.last, previous == signal { return }
+			this.last = signal
+			done(signal)
+		}
+	}
+}
+
+// MARK: -
+
 public final class SideEffectProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped> {
 	private let sideEffectFunction: (Signal<Wrapped>) -> ()
 
@@ -301,9 +321,16 @@ extension Producer {
 	public func transform(on queue: DispatchQueue) -> SwitchQueueProducer<ProducedType> {
 		return SwitchQueueProducer.init(self, newTransformationQueue: queue, newProductionQueue: nil)
 	}
+}
 
-	// MARK: - Convenience
+extension Producer where ProducedType: Equatable {
+	public var filterIfEqual: DistinctProducer<ProducedType> {
+		return DistinctProducer<ProducedType>.init(self, queue: nil)
+	}
+}
 
+// MARK: - Convenience
+extension Producer {
 	public func mapSome<A>(on queue: DispatchQueue? = nil, _ transform: @escaping (ProducedType) -> A?) -> MapProducer<A?,A> {
 		return map(on: queue, transform)
 			.filter(on: queue) { $0 != nil }
@@ -318,3 +345,5 @@ extension Producer {
 		return SideEffectProducer<ProducedType>.init(self, queue: queue, sideEffectFunction: { guard case .stop = $0 else { return }; effect() })
 	}
 }
+
+

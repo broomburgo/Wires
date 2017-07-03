@@ -600,10 +600,45 @@ class OperatorsTests: XCTestCase {
         waitForExpectations(timeout: 2, handler: nil)
     }
 
+	// MARK: - DistinctProducer tests
+
+	func testDistinct() {
+		let speaker = Speaker<Int>()
+
+		let expectedValue = [1,2,3,1,3]
+		var value = [Int].init()
+
+		currentWire = speaker
+			.filterIfEqual
+			.consume { value.append($0) }
+
+		speaker.say(1)
+		speaker.say(1)
+		speaker.say(2)
+		speaker.say(2)
+		speaker.say(2)
+		speaker.say(3)
+		speaker.say(3)
+		speaker.say(3)
+		speaker.say(3)
+		speaker.say(1)
+		speaker.say(3)
+		speaker.say(3)
+		speaker.say(3)
+
+		let willListen = expectation(description: "willListen")
+		after(0.1) {
+			XCTAssertEqual(value, expectedValue)
+			willListen.fulfill()
+		}
+
+		waitForExpectations(timeout: 1)
+	}
+
 	// MARK: - SideEffectProducer tests
 
 	func testSideEffectOnNext() {
-		let speaker = Speaker<Int?>()
+		let speaker = Speaker<Int>()
 
 		let expectedValue = 42
 		var value: Int? = nil

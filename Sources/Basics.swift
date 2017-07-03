@@ -26,6 +26,19 @@ public enum Signal<A>: CustomStringConvertible {
 	}
 }
 
+extension Signal where A: Equatable {
+	public static func == (left: Signal, right: Signal) -> Bool {
+		switch (left,right) {
+		case (.next(let leftValue),.next(let rightValue)) where leftValue == rightValue:
+			return true
+		case (.stop,.stop):
+			return true
+		default:
+			return false
+		}
+	}
+}
+
 public protocol ProductionQueueOwner {
 	var productionQueue: DispatchQueue { get }
 }
