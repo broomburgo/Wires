@@ -12,8 +12,8 @@
 		384888EF1F0A231400FE6CA4 /* TypeErasersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 384888EE1F0A231400FE6CA4 /* TypeErasersTests.swift */; };
 		384888F11F0A465900FE6CA4 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 384888F01F0A465900FE6CA4 /* Logging.swift */; };
 		384888F31F0A583300FE6CA4 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 384888F01F0A465900FE6CA4 /* Logging.swift */; };
-		3859B7941F09182000B4E260 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3859B7931F09182000B4E260 /* Operators.swift */; };
-		3859B7951F09182000B4E260 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3859B7931F09182000B4E260 /* Operators.swift */; };
+		3859B7941F09182000B4E260 /* Transformers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3859B7931F09182000B4E260 /* Transformers.swift */; };
+		3859B7951F09182000B4E260 /* Transformers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3859B7931F09182000B4E260 /* Transformers.swift */; };
 		3859B7971F09184900B4E260 /* Basics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3859B7961F09184900B4E260 /* Basics.swift */; };
 		3859B7981F09184900B4E260 /* Basics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3859B7961F09184900B4E260 /* Basics.swift */; };
 		3859B79A1F09193500B4E260 /* Connections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3859B7991F09193500B4E260 /* Connections.swift */; };
@@ -45,10 +45,11 @@
 		382858FE1EF7DD8500C765DB /* Wires.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Wires.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		382859001EF7DD8500C765DB /* Wires-ios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Wires-ios.h"; sourceTree = "<group>"; };
 		382859011EF7DD8500C765DB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		383439491F0A82B100B158AC /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		384888ED1F0A208A00FE6CA4 /* LinuxMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LinuxMain.swift; path = Tests/LinuxMain.swift; sourceTree = "<group>"; };
 		384888EE1F0A231400FE6CA4 /* TypeErasersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeErasersTests.swift; sourceTree = "<group>"; };
 		384888F01F0A465900FE6CA4 /* Logging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
-		3859B7931F09182000B4E260 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Operators.swift; sourceTree = "<group>"; };
+		3859B7931F09182000B4E260 /* Transformers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transformers.swift; sourceTree = "<group>"; };
 		3859B7961F09184900B4E260 /* Basics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Basics.swift; sourceTree = "<group>"; };
 		3859B7991F09193500B4E260 /* Connections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Connections.swift; sourceTree = "<group>"; };
 		3859B79C1F091A7C00B4E260 /* TypeErasers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeErasers.swift; sourceTree = "<group>"; };
@@ -128,6 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
+				383439491F0A82B100B158AC /* README.md */,
 				3859B7A21F092DA600B4E260 /* .travis.yml */,
 				3859B7A31F092DA600B4E260 /* codecov.yml */,
 				OBJ_7 /* Sources */,
@@ -144,8 +146,8 @@
 				3859B7991F09193500B4E260 /* Connections.swift */,
 				3859B79F1F091D6500B4E260 /* Consumers.swift */,
 				384888F01F0A465900FE6CA4 /* Logging.swift */,
-				3859B7931F09182000B4E260 /* Operators.swift */,
 				OBJ_8 /* Producers.swift */,
+				3859B7931F09182000B4E260 /* Transformers.swift */,
 				3859B79C1F091A7C00B4E260 /* TypeErasers.swift */,
 			);
 			path = Sources;
@@ -280,7 +282,7 @@
 				382859061EF7DDAD00C765DB /* Producers.swift in Sources */,
 				384888F31F0A583300FE6CA4 /* Logging.swift in Sources */,
 				3859B7A11F091D6500B4E260 /* Consumers.swift in Sources */,
-				3859B7951F09182000B4E260 /* Operators.swift in Sources */,
+				3859B7951F09182000B4E260 /* Transformers.swift in Sources */,
 				3859B79B1F09193500B4E260 /* Connections.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -293,7 +295,7 @@
 				3859B7971F09184900B4E260 /* Basics.swift in Sources */,
 				OBJ_20 /* Producers.swift in Sources */,
 				3859B7A01F091D6500B4E260 /* Consumers.swift in Sources */,
-				3859B7941F09182000B4E260 /* Operators.swift in Sources */,
+				3859B7941F09182000B4E260 /* Transformers.swift in Sources */,
 				384888F11F0A465900FE6CA4 /* Logging.swift in Sources */,
 				3859B79A1F09193500B4E260 /* Connections.swift in Sources */,
 			);
