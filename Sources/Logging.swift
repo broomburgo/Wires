@@ -1,5 +1,5 @@
-public enum WiresPreferences {
-	private static let logActiveKey = "Wires.WiresPreferences.logActiveKey"
+public enum Preferences {
+	private static let logActiveKey = "Wires.Preferences.logActiveKey"
 	public static var logActive: Bool = false
 }
 
@@ -8,7 +8,7 @@ enum Log {
 	static let separator = " --> "
 
 	static func with(context: Any, text: String) {
-		guard WiresPreferences.logActive else { return }
+		guard Preferences.logActive else { return }
 		print(prefix + separator + "\(context)" + separator + text)
 	}
 }
