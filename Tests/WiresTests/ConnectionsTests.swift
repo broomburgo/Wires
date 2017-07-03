@@ -8,12 +8,6 @@ class ConnectionsTests: XCTestCase {
 		("testConsume", testConsume)
 	]
 
-	override func setUp() {
-		super.setUp()
-
-		WiresPreferences.logActive = true
-	}
-
 	var currentWire: Wire? = nil
 
 	override func tearDown() {
