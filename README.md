@@ -1,6 +1,6 @@
 # Wires
-[![travis-ci](https://travis-ci.org/broomburgo/Wires?branch=master)](https://travis-ci.org/broomburgo/Wires)
-[![codecov](https://codecov.io/gh/broomburgo/Wires/branch/master/graph/badge.svg)](https://codecov.io/gh/broomburgo/Wires)
+[![travis-ci](https://travis-ci.org/facile-it/Wires.svg?branch=master)](https://travis-ci.org/facile-it/Wires)
+[![codecov](https://codecov.io/gh/facile-it/Wires/branch/master/graph/badge.svg)](https://codecov.io/gh/facile-it/Wires)
 
 Functional Reactive abstractions for Swift.
 
