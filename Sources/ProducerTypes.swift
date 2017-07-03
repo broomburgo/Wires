@@ -53,7 +53,7 @@ public final class Fixed<T>: Producer {
 
 extension Fixed where T: Sequence {
 	@discardableResult
-	public func upon(_ callback: @escaping (Signal<T.Iterator.Element>) -> ()) -> Self {
+	public func uponEach(_ callback: @escaping (Signal<T.Iterator.Element>) -> ()) -> Self {
 		for element in value {
 			productionQueue.async { callback(.next(element)) }
 		}
