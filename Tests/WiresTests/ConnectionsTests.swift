@@ -1,8 +1,19 @@
 import XCTest
 @testable import Wires
-import Foundation
 
-class WiresTests: XCTestCase {
+class ConnectionsTests: XCTestCase {
+	static var allTests = [
+		("testWiresConnect", testWiresConnect),
+		("testWiresDisconnect", testWiresDisconnect),
+		("testConsume", testConsume)
+	]
+
+	override func setUp() {
+		super.setUp()
+
+		WiresPreferences.logActive = true
+	}
+
 	var currentWire: Wire? = nil
 
 	override func tearDown() {
@@ -54,7 +65,7 @@ class WiresTests: XCTestCase {
         
         currentWire = speaker.connect(to: listener)
         speaker.say(expectedValue)
-        DispatchQueue.main.after(0.25) {
+        after(0.25) {
             self.currentWire?.disconnect()
             speaker.say(42)
         }
@@ -79,7 +90,7 @@ class WiresTests: XCTestCase {
 		speaker.say(6)
 
 		let willListen = expectation(description: "willListen")
-		DispatchQueue.main.after(0.3) { 
+		after(0.3) { 
 			XCTAssertEqual(values, [1,2,3])
 			willListen.fulfill()
 		}

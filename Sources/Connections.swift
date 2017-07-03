@@ -14,22 +14,30 @@ public final class Wire: Disconnectable {
         self.producer = producer
         self.consumer = consumer
         self.connected = true
-        
-        producer.upon { [weak self, weak consumer] signal in
+		Log.with(context: self, text: "connecting \(producer) to \(consumer)")
+
+        producer.upon { [weak self, weak producer, weak consumer] signal in
             guard
                 let this = self,
                 this.connected,
-                let current = consumer
+                let currentConsumer = consumer,
+				let currentProducer = producer
                 else { return }
-            current.receive(signal)
+			Log.with(context: this, text: "passing \(signal) from \(currentProducer) to \(currentConsumer)")
+            currentConsumer.receive(signal)
         }
     }
     
     public func disconnect() {
+		Log.with(context: self, text: "disconnecting")
         producer = nil
         consumer = nil
         connected = false
     }
+
+	deinit {
+		disconnect()
+	}
 }
 
 public final class DisconnectableBag: Disconnectable {
@@ -38,6 +46,7 @@ public final class DisconnectableBag: Disconnectable {
     public init() {}
     
     public func add(_ value: Disconnectable) {
+		Log.with(context: self, text: "adding \(value)")
         disconnectables.append(value)
     }
     
@@ -47,6 +56,7 @@ public final class DisconnectableBag: Disconnectable {
     }
     
     public func disconnect() {
+		Log.with(context: self, text: "disconnecting")
         disconnectables.forEach { $0.disconnect() }
         disconnectables.removeAll()
     }
@@ -65,7 +75,7 @@ extension Producer {
 
 	public func consume(_ callback: @escaping (ProducedType) -> ()) -> Wire {
 		var toDisconnect: Wire? = nil
-		let disconnectable = connect(to: Listener.init { signal in
+		let disconnectable = connect(to: Listener.init { [weak toDisconnect] signal in
 			switch signal {
 			case .next(let value):
 				callback(value)

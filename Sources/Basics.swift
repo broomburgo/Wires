@@ -1,17 +1,29 @@
 import Dispatch
 
-public enum Signal<A> {
+public enum Signal<A>: CustomStringConvertible {
     case next(A)
     case stop
     
     public func map<B>(_ transform: (A) throws -> B) rethrows -> Signal<B> {
-        switch self {
+		let newSignal: Signal<B>
+		switch self {
         case .next(let value):
-            return try .next(transform(value))
+            newSignal = try .next(transform(value))
         case .stop:
-            return .stop
+            newSignal = .stop
         }
-    }
+		Log.with(context: "Wires.Signal", text: "mapping \(self) into \(newSignal)")
+		return newSignal
+	}
+
+	public var description: String {
+		switch self {
+		case .next(let value):
+			return ".next(\(value))"
+		default:
+			return ".stop"
+		}
+	}
 }
 
 public protocol ProductionQueueOwner {

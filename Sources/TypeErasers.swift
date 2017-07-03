@@ -41,6 +41,7 @@ public class AnyProducer<A>: Producer {
     
     public init<P: Producer>(_ base: P) where P.ProducedType == ProducedType {
         self.box = BoxProducer(base: base)
+		Log.with(context: self, text: "init from \(base)")
     }
     
     @discardableResult
@@ -79,6 +80,7 @@ public class AnyConsumer<A>: Consumer {
     
     public init<C: Consumer>(_ base: C) where C.ConsumedType == ConsumedType {
         self.box = BoxConsumer(base: base)
+		Log.with(context: self, text: "init from \(base)")
     }
     
     @discardableResult
