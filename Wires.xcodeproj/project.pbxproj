@@ -57,7 +57,7 @@
 		3859B7A21F092DA600B4E260 /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		3859B7A31F092DA600B4E260 /* codecov.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = codecov.yml; sourceTree = "<group>"; };
 		AA9C81DD1F0101F2006A3B26 /* TransformersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransformersTests.swift; sourceTree = "<group>"; };
-		AAC586C21F026C5F00BAB4D5 /* TestUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TestUtilities.swift; path = Tests/TestUtilities.swift; sourceTree = "<group>"; };
+		AAC586C21F026C5F00BAB4D5 /* TestUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestUtilities.swift; sourceTree = "<group>"; };
 		AAF11E181EF967CC00B994AF /* ProducersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProducersTests.swift; sourceTree = "<group>"; };
 		AAF11E1A1EF97EC900B994AF /* ConsumersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConsumersTests.swift; sourceTree = "<group>"; };
 		OBJ_11 /* ConnectionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionsTests.swift; sourceTree = "<group>"; };
@@ -105,6 +105,7 @@
 		OBJ_10 /* WiresTests */ = {
 			isa = PBXGroup;
 			children = (
+				AAC586C21F026C5F00BAB4D5 /* TestUtilities.swift */,
 				OBJ_11 /* ConnectionsTests.swift */,
 				AAF11E1A1EF97EC900B994AF /* ConsumersTests.swift */,
 				AAF11E181EF967CC00B994AF /* ProducersTests.swift */,
@@ -157,7 +158,6 @@
 			isa = PBXGroup;
 			children = (
 				384888ED1F0A208A00FE6CA4 /* LinuxMain.swift */,
-				AAC586C21F026C5F00BAB4D5 /* TestUtilities.swift */,
 				OBJ_10 /* WiresTests */,
 			);
 			name = Tests;
