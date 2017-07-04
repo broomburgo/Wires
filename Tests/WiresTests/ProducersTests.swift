@@ -12,7 +12,10 @@ class ProducersTests: XCTestCase {
 		("testFutureAlreadyDone2",testFutureAlreadyDone2),
 		("testFutureWillDo1",testFutureWillDo1),
 		("testFutureWillDo2",testFutureWillDo2),
-		("testFutureStartIdempotent",testFutureStartIdempotent)
+		("testFutureStartIdempotent",testFutureStartIdempotent),
+		("testZip2Producer1",testZip2Producer1),
+		("testZip2Producer2",testZip2Producer2),
+		("testZip3Producer",testZip3Producer)
 	]
 
 	func testSpeakerSendSingle(){

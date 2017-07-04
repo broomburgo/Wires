@@ -16,6 +16,18 @@ public enum Signal<A>: CustomStringConvertible {
 		return newSignal
 	}
 
+	public func flatMap<B>(_ transform: (A) throws -> Signal<B>) rethrows -> Signal<B> {
+		let newSignal: Signal<B>
+		switch self {
+		case .next(let value):
+			newSignal = try transform(value)
+		case .stop:
+			newSignal = .stop
+		}
+		Log.with(context: "Wires.Signal", text: "flatMapping \(self) into \(newSignal)")
+		return newSignal
+	}
+
 	public var description: String {
 		switch self {
 		case .next(let value):
