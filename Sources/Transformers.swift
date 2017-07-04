@@ -185,9 +185,17 @@ public final class DebounceProducer<Wrapped>: AbstractTransformer<Wrapped,Wrappe
 
 public final class CachedProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped> {
     private var constant: Fixed<Wrapped>? = nil
+
+	public var cachedValue: Wrapped? {
+		return constant?.value
+	}
+
+	public func clear() {
+		constant = nil
+	}
     
-    public init<P>(_ root: P, queue: DispatchQueue?) where P:Producer, P.ProducedType == Wrapped {
-		let transformationQueue = queue ?? (root as? TransformationQueueOwner)?.transformationQueue ?? .main
+    public init<P>(_ root: P) where P:Producer, P.ProducedType == Wrapped {
+		let transformationQueue = (root as? TransformationQueueOwner)?.transformationQueue ?? .main
         super.init([root], transformationQueue: transformationQueue, productionQueue: root.productionQueue)
         root.upon { [weak self] signal in
             guard let this = self else { return }
@@ -299,8 +307,8 @@ extension Producer {
 		return FilterProducer<ProducedType>.init(self, queue: queue, conditionFunction: predicate)
 	}
 
-	public func cached(on queue: DispatchQueue? = nil) -> CachedProducer<ProducedType> {
-		return CachedProducer<ProducedType>.init(self, queue: queue)
+	public var cached: CachedProducer<ProducedType> {
+		return CachedProducer<ProducedType>.init(self)
 	}
 
 	public func merge<P>(_ other: P) -> MergeProducer<ProducedType> where P:Producer, P.ProducedType == ProducedType {

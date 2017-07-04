@@ -18,6 +18,8 @@ extension Producer {
 	}
 }
 
+// MARK: -
+
 public final class Speaker<T>: Producer {
 	public typealias ProducedType = T
 
@@ -55,6 +57,8 @@ public final class Speaker<T>: Producer {
 	}
 }
 
+// MARK: -
+
 public final class Fixed<T>: Producer {
     public typealias ProducedType = T
     
@@ -88,6 +92,8 @@ extension Fixed where T: Sequence {
 		return self
 	}
 }
+
+// MARK: -
 
 public final class Future<T>: Producer {
 	public typealias ProducedType = T
@@ -156,4 +162,143 @@ fileprivate enum FutureState<A> {
 	case idle
 	case processing
 	case complete(A)
+}
+
+// MARK: -
+
+public final class Zip2Producer<Source1,Source2>: Producer {
+	public typealias ProducedType = (Source1,Source2)
+	public let productionQueue: DispatchQueue
+	private let root1: AnyProducer<Source1>
+	private let root2: AnyProducer<Source2>
+	private var value1Queue: [Source1] = []
+	private var value2Queue: [Source2] = []
+	private let speaker: Speaker<(Source1,Source2)>
+	private let disconnectableBag = DisconnectableBag.init()
+
+	public init<P1,P2>(_ root1: P1, _ root2: P2) where P1: Producer, P2: Producer, P1.ProducedType == Source1, P2.ProducedType == Source2 {
+		self.productionQueue = root1.productionQueue
+		self.root1 = root1.any
+		self.root2 = root2.any
+		self.speaker = Speaker<(Source1,Source2)>.init(productionQueue: self.productionQueue)
+		
+		self.root1
+			.consume { [weak self] value1 in
+				guard let this = self else { return }
+				this.value1Queue.append(value1)
+				guard let enqueuedValue1 = this.value1Queue.first, let enqueuedValue2 = this.value2Queue.first else { return }
+				this.value1Queue.removeFirst(1)
+				this.value2Queue.removeFirst(1)
+				this.speaker.say((enqueuedValue1,enqueuedValue2))
+			}
+			.add(to: self.disconnectableBag)
+
+		self.root2
+			.consume { [weak self] value2 in
+				guard let this = self else { return }
+				this.value2Queue.append(value2)
+				guard let enqueuedValue1 = this.value1Queue.first, let enqueuedValue2 = this.value2Queue.first else { return }
+				this.value1Queue.removeFirst(1)
+				this.value2Queue.removeFirst(1)
+				this.speaker.say((enqueuedValue1,enqueuedValue2))
+			}
+			.add(to: self.disconnectableBag)
+	}
+
+	public func upon(_ callback: @escaping (Signal<(Source1, Source2)>) -> ()) -> Self {
+		self.speaker.upon(callback)
+		return self
+	}
+
+	deinit {
+		disconnectableBag.disconnect()
+	}
+}
+
+public func zip<P1,P2>(_ producer1: P1, _ producer2: P2) -> Zip2Producer<P1.ProducedType,P2.ProducedType> where P1: Producer, P2: Producer {
+	return Zip2Producer.init(producer1, producer2)
+}
+
+// MARK: -
+
+public final class Zip3Producer<Source1,Source2,Source3>: Producer {
+	public typealias ProducedType = (Source1,Source2,Source3)
+	public let productionQueue: DispatchQueue
+	private let root1: AnyProducer<Source1>
+	private let root2: AnyProducer<Source2>
+	private let root3: AnyProducer<Source3>
+	private var value1Queue: [Source1] = []
+	private var value2Queue: [Source2] = []
+	private var value3Queue: [Source3] = []
+	private let speaker: Speaker<(Source1,Source2,Source3)>
+	private let disconnectableBag = DisconnectableBag.init()
+
+	public init<P1,P2,P3>(_ root1: P1, _ root2: P2, _ root3: P3) where P1: Producer, P2: Producer, P3: Producer, P1.ProducedType == Source1, P2.ProducedType == Source2, P3.ProducedType == Source3 {
+		self.productionQueue = root1.productionQueue
+		self.root1 = root1.any
+		self.root2 = root2.any
+		self.root3 = root3.any
+		self.speaker = Speaker<(Source1,Source2,Source3)>.init(productionQueue: self.productionQueue)
+
+		self.root1
+			.consume { [weak self] value1 in
+				guard let this = self else { return }
+				this.value1Queue.append(value1)
+				guard
+					let enqueuedValue1 = this.value1Queue.first,
+					let enqueuedValue2 = this.value2Queue.first,
+					let enqueuedValue3 = this.value3Queue.first
+					else { return }
+				this.value1Queue.removeFirst(1)
+				this.value2Queue.removeFirst(1)
+				this.value3Queue.removeFirst(1)
+				this.speaker.say((enqueuedValue1,enqueuedValue2,enqueuedValue3))
+			}
+			.add(to: self.disconnectableBag)
+
+		self.root2
+			.consume { [weak self] value2 in
+				guard let this = self else { return }
+				this.value2Queue.append(value2)
+				guard
+					let enqueuedValue1 = this.value1Queue.first,
+					let enqueuedValue2 = this.value2Queue.first,
+					let enqueuedValue3 = this.value3Queue.first
+					else { return }
+				this.value1Queue.removeFirst(1)
+				this.value2Queue.removeFirst(1)
+				this.value3Queue.removeFirst(1)
+				this.speaker.say((enqueuedValue1,enqueuedValue2,enqueuedValue3))
+			}
+			.add(to: self.disconnectableBag)
+
+		self.root3
+			.consume { [weak self] value3 in
+				guard let this = self else { return }
+				this.value3Queue.append(value3)
+				guard
+					let enqueuedValue1 = this.value1Queue.first,
+					let enqueuedValue2 = this.value2Queue.first,
+					let enqueuedValue3 = this.value3Queue.first
+					else { return }
+				this.value1Queue.removeFirst(1)
+				this.value2Queue.removeFirst(1)
+				this.value3Queue.removeFirst(1)
+				this.speaker.say((enqueuedValue1,enqueuedValue2,enqueuedValue3))
+			}
+			.add(to: self.disconnectableBag)
+	}
+
+	public func upon(_ callback: @escaping (Signal<(Source1, Source2, Source3)>) -> ()) -> Self {
+		self.speaker.upon(callback)
+		return self
+	}
+
+	deinit {
+		disconnectableBag.disconnect()
+	}
+}
+
+public func zip<P1,P2,P3>(_ producer1: P1, _ producer2: P2, _ producer3: P3) -> Zip3Producer<P1.ProducedType,P2.ProducedType,P3.ProducedType> where P1: Producer, P2: Producer, P3: Producer {
+	return Zip3Producer.init(producer1, producer2, producer3)
 }

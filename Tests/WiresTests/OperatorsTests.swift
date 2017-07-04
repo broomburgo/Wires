@@ -57,7 +57,7 @@ class OperatorsTests: XCTestCase {
     
     func testMapSingleCached() {
         let speaker = Speaker<Int>()
-        let cached = speaker.cached()
+        let cached = speaker.cached
         
         let sentValue1 = 42
         let expectedValue1 = "42"
@@ -333,7 +333,7 @@ class OperatorsTests: XCTestCase {
         }
         
         currentWire = speaker1
-            .cached()
+            .cached
             .flatMap { value -> AnyProducer<String> in
                 XCTAssertEqual(value, expectedValue1)
                 willObserve1.fulfill()
@@ -413,7 +413,7 @@ class OperatorsTests: XCTestCase {
         }
         
         // Core functionality
-        currentWire = speaker.cached().connect(to: listener)
+        currentWire = speaker.cached.connect(to: listener)
         
         // Execution
         speaker.say(expectedValue1)
@@ -427,7 +427,7 @@ class OperatorsTests: XCTestCase {
         
         let expectedValue = 23
         
-        let cached = speaker.cached()
+        let cached = speaker.cached
         
         speaker.say(expectedValue)
         
@@ -462,7 +462,7 @@ class OperatorsTests: XCTestCase {
         
         let expectedValue1 = 23
         
-        let cached = AnyProducer.init(speaker.cached())
+        let cached = AnyProducer.init(speaker.cached)
         
         speaker.say(expectedValue1)
         
