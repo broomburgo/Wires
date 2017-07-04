@@ -51,19 +51,23 @@ open class AbstractTransformer<Source,Target>: Transformer {
 // MARK: -
 
 public final class MapProducer<Source,Target>: AbstractTransformer<Source,Target> {
-    private let mappingFunction: (Source) -> Target
-    
-    public init<P>(_ root: P, queue: DispatchQueue?, mappingFunction: @escaping (Source) -> Target) where P: Producer, P.ProducedType == Source {
-        self.mappingFunction = mappingFunction
+    private let mappingFunction: (Source) -> Signal<Target>
+
+	public init<P>(_ root: P, queue: DispatchQueue?, mappingFunction: @escaping (Source) -> Signal<Target>) where P: Producer, P.ProducedType == Source {
+		self.mappingFunction = mappingFunction
 		let transformationQueue = queue ?? (root as? TransformationQueueOwner)?.transformationQueue ?? .main
-        super.init([root], transformationQueue: transformationQueue, productionQueue: root.productionQueue)
+		super.init([root], transformationQueue: transformationQueue, productionQueue: root.productionQueue)
+	}
+
+	public convenience init<P>(_ root: P, queue: DispatchQueue?, mappingFunction: @escaping (Source) -> Target) where P: Producer, P.ProducedType == Source {
+		self.init(root, queue: queue, mappingFunction: { .next(mappingFunction($0)) })
     }
-    
+
     public override func transform(_ signal: Signal<Source>) -> (@escaping (Signal<Target>) -> ()) -> () {
         return { [weak self] done in
             guard let this = self else { return }
 			Log.with(context: this, text: "mapping \(signal)")
-            done(signal.map(this.mappingFunction))
+            done(signal.flatMap(this.mappingFunction))
         }
     }
 }
@@ -292,6 +296,10 @@ public final class SwitchQueueProducer<Wrapped>: AbstractTransformer<Wrapped,Wra
 
 extension Producer {
 	public func map<A>(on queue: DispatchQueue? = nil, _ transform: @escaping (ProducedType) -> A) -> MapProducer<ProducedType,A> {
+		return MapProducer<ProducedType,A>.init(self, queue: queue, mappingFunction: transform)
+	}
+
+	public func mapToSignal<A>(on queue: DispatchQueue? = nil, _ transform: @escaping (ProducedType) -> Signal<A>) -> MapProducer<ProducedType,A> {
 		return MapProducer<ProducedType,A>.init(self, queue: queue, mappingFunction: transform)
 	}
 

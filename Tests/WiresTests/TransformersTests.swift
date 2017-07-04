@@ -1,11 +1,13 @@
 @testable import Wires
 import XCTest
 
-class OperatorsTests: XCTestCase {
+class TransformersTests: XCTestCase {
 	static var allTests = [
 		("testMapSingle", testMapSingle),
 		("testMapSingleCached", testMapSingleCached),
 		("testMapChained", testMapChained),
+		("testMapToSignalNext", testMapToSignalNext),
+		("testMapToSignalStop", testMapToSignalNext),
 		("testFlatMapSingle", testFlatMapSingle),
 		("testFlatMapMultiple1", testFlatMapMultiple1),
 		("testFlatMapMultiple2", testFlatMapMultiple2),
@@ -17,6 +19,7 @@ class OperatorsTests: XCTestCase {
 		("testCachedAny", testCachedAny),
 		("testMerge", testMerge),
 		("testDebounce", testDebounce),
+		("testDistinct", testDistinct),
 		("testSideEffectOnNext", testSideEffectOnNext),
 		("testSideEffectOnStop", testSideEffectOnStop),
 		("testMapSome", testMapSome)
@@ -31,14 +34,14 @@ class OperatorsTests: XCTestCase {
     }
 
     // MARK: - MapProducer tests
-    
+
     func testMapSingle() {
         let speaker = Speaker<Int>()
-        
+
         let sentValue1 = 42
         let expectedValue1 = "42"
         let willObserve1 = expectation(description: "willObserve1")
-        
+
         let listener = Listener<String>.init { signal in
             switch signal {
             case .next(let value):
@@ -49,7 +52,7 @@ class OperatorsTests: XCTestCase {
             }
         }
         currentWire = speaker.map{ "\($0)" }.connect(to: listener)
-        
+
         speaker.say(sentValue1)
         
         waitForExpectations(timeout: 1, handler: nil)
@@ -117,9 +120,54 @@ class OperatorsTests: XCTestCase {
         
         waitForExpectations(timeout: 1)
     }
-    
+
+	func testMapToSignalNext() {
+		let speaker = Speaker<Int>()
+
+		let sentValue1 = 42
+		let expectedValue1 = "42"
+		let willObserve1 = expectation(description: "willObserve1")
+
+		let listener = Listener<String>.init { signal in
+			switch signal {
+			case .next(let value):
+				XCTAssertEqual(value, expectedValue1)
+				willObserve1.fulfill()
+			case .stop:
+				XCTFail()
+			}
+		}
+		currentWire = speaker.mapToSignal { .next("\($0)") }.connect(to: listener)
+
+		speaker.say(sentValue1)
+
+		waitForExpectations(timeout: 1, handler: nil)
+	}
+
+	func testMapToSignalStop() {
+		let speaker = Speaker<Int>()
+
+		let sentValue1 = 42
+		let willObserve1 = expectation(description: "willObserve1")
+
+		let listener = Listener<String>.init { signal in
+			switch signal {
+			case .next:
+				XCTFail()
+			case .stop:
+				willObserve1.fulfill()
+			}
+		}
+
+		currentWire = speaker.mapToSignal { _ in .stop }.connect(to: listener)
+
+		speaker.say(sentValue1)
+
+		waitForExpectations(timeout: 1, handler: nil)
+	}
+
     // MARK: - FlatMapProduce tests
-    
+
     func testFlatMapSingle() {
         let speaker1 = Speaker<Int>()
         var speaker2: Speaker<String>? = nil

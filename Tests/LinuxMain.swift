@@ -4,7 +4,7 @@ import XCTest
 XCTMain([
     testCase(ConnectionsTests.allTests),
     testCase(ConsumersTests.allTests),
-    testCase(OperatorsTests.allTests),
     testCase(ProducersTests.allTests),
+    testCase(TransformersTests.allTests),
     testCase(TypeErasersTests.allTests)
 ])
