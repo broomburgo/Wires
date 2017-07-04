@@ -609,7 +609,7 @@ class OperatorsTests: XCTestCase {
 		var value = [Int].init()
 
 		currentWire = speaker
-			.filterIfEqual
+			.distinctUntilChanged
 			.consume { value.append($0) }
 
 		speaker.say(1)

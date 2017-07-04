@@ -144,16 +144,14 @@ public final class FilterProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped>
 // MARK: -
 
 public final class MergeProducer<Wrapped>: AbstractTransformer<Wrapped,Wrapped> {
-    public init<P>(_ root: P, queue: DispatchQueue?, other: P) where P: Producer, P.ProducedType == Wrapped {
-		let transformationQueue = queue ?? (root as? TransformationQueueOwner)?.transformationQueue ?? .main
-        super.init([root, other], transformationQueue: transformationQueue, productionQueue: DispatchQueue.main)
+    public init<P>(_ roots: [P]) where P: Producer, P.ProducedType == Wrapped {
+		let transformationQueue = (roots.first as? TransformationQueueOwner)?.transformationQueue ?? .main
+		let productionQueue = roots.first?.productionQueue ?? .main
+        super.init(roots, transformationQueue: transformationQueue, productionQueue: productionQueue)
     }
     
     public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
-        return { [weak self] done in
-            guard self != nil else { return }
-            done(signal)
-        }
+        return { $0(signal) }
     }
 }
 
@@ -168,24 +166,19 @@ public final class DebounceProducer<Wrapped>: AbstractTransformer<Wrapped,Wrappe
 		let transformationQueue = queue ?? (root as? TransformationQueueOwner)?.transformationQueue ?? .main
         super.init([root], transformationQueue: transformationQueue, productionQueue: root.productionQueue)
     }
-    
-    public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
-        currentSignalId += 1
-        let expectedSignalId = currentSignalId
-        return { [weak self] done in
-            guard let this = self else { return }
-            switch signal {
-            case .next(let value):
-				Log.with(context: this, text: "delaying \(value) for \(this.delay) seconds")
-                this.transformationQueue.asyncAfter(deadline: .now() + this.delay, execute: {
-                    guard this.currentSignalId == expectedSignalId else { return }
-                    done(.next(value))
-                })
-            case .stop:
-                done(.stop)
-            }
-        }
-    }
+
+	public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
+		currentSignalId += 1
+		let expectedSignalId = currentSignalId
+		return { [weak self] done in
+			guard let this = self else { return }
+			Log.with(context: this, text: "delaying \(signal) for \(this.delay) seconds")
+			this.transformationQueue.asyncAfter(deadline: .now() + this.delay, execute: {
+				guard this.currentSignalId == expectedSignalId else { return }
+				done(signal)
+			})
+		}
+	}
 }
 
 // MARK: -
@@ -241,7 +234,11 @@ public final class DistinctProducer<Wrapped: Equatable>: AbstractTransformer<Wra
 	public override func transform(_ signal: Signal<Wrapped>) -> (@escaping (Signal<Wrapped>) -> ()) -> () {
 		return { [weak self] done in
 			guard let this = self else { return }
-			if let previous = this.last, previous == signal { return }
+			if let previous = this.last, previous == signal {
+				Log.with(context: this, text: "ignoring \(signal) because not distinct")
+				return
+			}
+			Log.with(context: this, text: "will distinct new \(signal)")
 			this.last = signal
 			done(signal)
 		}
@@ -306,8 +303,8 @@ extension Producer {
 		return CachedProducer<ProducedType>.init(self, queue: queue)
 	}
 
-	public func merge<P>(on queue: DispatchQueue? = nil, _ other: P) -> MergeProducer<ProducedType> where P:Producer, P.ProducedType == ProducedType {
-		return MergeProducer<ProducedType>.init(AnyProducer(self), queue: queue, other: AnyProducer(other))
+	public func merge<P>(_ other: P) -> MergeProducer<ProducedType> where P:Producer, P.ProducedType == ProducedType {
+		return MergeProducer<ProducedType>.init([AnyProducer(self),AnyProducer(other)])
 	}
 
 	public func sideEffect(on queue: DispatchQueue? = nil, _ effect: @escaping (Signal<ProducedType>) -> ()) -> SideEffectProducer<ProducedType> {
@@ -324,7 +321,7 @@ extension Producer {
 }
 
 extension Producer where ProducedType: Equatable {
-	public var filterIfEqual: DistinctProducer<ProducedType> {
+	public var distinctUntilChanged: DistinctProducer<ProducedType> {
 		return DistinctProducer<ProducedType>.init(self, queue: nil)
 	}
 }
