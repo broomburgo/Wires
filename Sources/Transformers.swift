@@ -103,8 +103,8 @@ public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Ta
 					.add(to: this.disconnectableBag)
             case .stop:
 				Log.with(context: this, text: "disconnecting all producers")
+				done(.stop)
 				this.disconnectableBag.disconnect()
-                done(.stop)
             }
         }
     }
