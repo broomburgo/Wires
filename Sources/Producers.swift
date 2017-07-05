@@ -55,6 +55,10 @@ public final class Speaker<T>: Producer {
 		callbacks.append(callback)
 		return self
 	}
+
+	deinit {
+		mute()
+	}
 }
 
 // MARK: -
@@ -156,6 +160,10 @@ public final class Future<T>: Producer {
 		}
 		return self
 	}
+
+	deinit {
+		speaker.mute()
+	}
 }
 
 fileprivate enum FutureState<A> {
@@ -207,6 +215,7 @@ public final class CombineLatest<Source1,Source2>: Producer {
     }
     
     deinit {
+		speaker.mute()
         disconnectableBag.disconnect()
     }
 }
@@ -262,6 +271,7 @@ public final class Zip2Producer<Source1,Source2>: Producer {
 	}
 
 	deinit {
+		speaker.mute()
 		disconnectableBag.disconnect()
 	}
 }
@@ -346,6 +356,7 @@ public final class Zip3Producer<Source1,Source2,Source3>: Producer {
 	}
 
 	deinit {
+		speaker.mute()
 		disconnectableBag.disconnect()
 	}
 }

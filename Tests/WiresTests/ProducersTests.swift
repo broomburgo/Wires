@@ -48,6 +48,8 @@ class ProducersTests: XCTestCase {
 				observeOnce = true
 			case (.next(let value), true):
 				XCTAssertEqual(value, expectedValue2)
+			case (.stop,true):
+				break
 			default:
 				fatalError()
 			}

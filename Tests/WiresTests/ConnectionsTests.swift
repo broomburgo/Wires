@@ -28,10 +28,10 @@ class ConnectionsTests: XCTestCase {
 			switch signal {
 			case .next(let value):
 				XCTAssertEqual(value, expectedValue)
+				willListenProperly.fulfill()
 			case .stop:
-				XCTFail()
+				break
 			}
-			willListenProperly.fulfill()
 		}
 
 		currentWire = p
@@ -51,10 +51,10 @@ class ConnectionsTests: XCTestCase {
             switch signal {
             case .next(let value):
                 XCTAssertEqual(value, expectedValue)
+				willDisconnectProperly.fulfill()
             case .stop:
-                XCTFail()
+                break
             }
-            willDisconnectProperly.fulfill()
         })
         
         currentWire = speaker.connect(to: listener)

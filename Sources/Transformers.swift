@@ -46,6 +46,10 @@ open class AbstractTransformer<Source,Target>: Transformer {
     public func transform(_ value: Signal<Source>) -> (@escaping (Signal<Target>) -> ()) -> () {
         fatalError("\(self): transform(_:) not implemented")
     }
+
+	deinit {
+		speaker.mute()
+	}
 }
 
 // MARK: -

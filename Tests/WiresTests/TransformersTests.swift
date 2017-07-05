@@ -48,7 +48,7 @@ class TransformersTests: XCTestCase {
                 XCTAssertEqual(value, expectedValue1)
                 willObserve1.fulfill()
             case .stop:
-                XCTFail()
+                break
             }
         }
         currentWire = speaker.map{ "\($0)" }.connect(to: listener)
@@ -74,7 +74,7 @@ class TransformersTests: XCTestCase {
                 XCTAssertEqual(value, expectedValue1)
                 willObserve1.fulfill()
             case .stop:
-                XCTFail()
+                break
             }
         }
         
@@ -98,7 +98,7 @@ class TransformersTests: XCTestCase {
                 XCTAssertEqual(expectedValue2, value)
                 willObserve2.fulfill()
             case .stop:
-                XCTFail()
+                break
             }
         }
         
@@ -110,7 +110,7 @@ class TransformersTests: XCTestCase {
                     XCTAssertEqual(expectedValue1, value)
                     willObserve1.fulfill()
                 case .stop:
-                    XCTFail()
+                    break
                 }
             }
             .map { "\($0)" }
@@ -134,7 +134,7 @@ class TransformersTests: XCTestCase {
 				XCTAssertEqual(value, expectedValue1)
 				willObserve1.fulfill()
 			case .stop:
-				XCTFail()
+				break
 			}
 		}
 		currentWire = speaker.mapToSignal { .next("\($0)") }.connect(to: listener)
@@ -184,7 +184,7 @@ class TransformersTests: XCTestCase {
                 XCTAssertEqual(expectedValue2, value)
                 willObserve2.fulfill()
             case .stop:
-                XCTFail()
+                break
             }
         }
         
@@ -231,7 +231,7 @@ class TransformersTests: XCTestCase {
                     observedOnce = true
                 }
             case .stop:
-                XCTFail()
+                break
             }
         }
         
@@ -276,7 +276,7 @@ class TransformersTests: XCTestCase {
                     observedOnce = true
                 }
             case .stop:
-                XCTFail()
+                break
             }
         }
         
@@ -376,7 +376,7 @@ class TransformersTests: XCTestCase {
                 XCTAssertEqual(value, expectedValue2)
                 willObserve2.fulfill()
             case .stop:
-                XCTFail()
+                break
             }
         }
         
@@ -415,7 +415,7 @@ class TransformersTests: XCTestCase {
                 XCTAssert(value == expectedValue)
                 willObserve.fulfill()
             case .stop:
-                XCTFail("Something wrong")
+                break
             }
         }
         
@@ -456,7 +456,7 @@ class TransformersTests: XCTestCase {
                     willObserve1.fulfill()
                 }
             case .stop:
-                XCTFail()
+                break
             }
         }
         
@@ -481,14 +481,14 @@ class TransformersTests: XCTestCase {
         
         let willObserve1 = expectation(description: "willObserve1")
         let willObserve2 = expectation(description: "willObserve2")
-        
+
         cached.upon { signal in
             switch signal {
             case .next(let value):
                 XCTAssertEqual(value, expectedValue)
                 willObserve1.fulfill()
             case .stop:
-                XCTFail()
+                break
             }
         }
         
@@ -498,7 +498,7 @@ class TransformersTests: XCTestCase {
                 XCTAssertEqual(value, expectedValue)
                 willObserve2.fulfill()
             case .stop:
-                XCTFail()
+                break
             }
         }
         
@@ -533,7 +533,7 @@ class TransformersTests: XCTestCase {
                     willObserve1.fulfill()
                 }
             case .stop:
-                XCTFail()
+                break
             }
         }
         
@@ -565,7 +565,7 @@ class TransformersTests: XCTestCase {
                     willObserve2.fulfill()
                 }
             case .stop:
-                XCTFail()
+                break
             }
         }
         
@@ -610,7 +610,7 @@ class TransformersTests: XCTestCase {
                     XCTAssertEqual(value, expectedValue2)
                 }
             case .stop:
-                XCTFail()
+                break
             }
         }
         
@@ -749,7 +749,7 @@ class TransformersTests: XCTestCase {
                 XCTAssert(value == expectedValue1)
                 willObserve.fulfill()
             case .stop:
-                XCTFail()
+                break
             }
         }
         
