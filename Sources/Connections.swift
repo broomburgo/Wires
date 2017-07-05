@@ -75,11 +75,17 @@ extension Producer {
 
 	public func consume(_ callback: @escaping (ProducedType) -> ()) -> Wire {
 		var toDisconnect: Wire? = nil
-		let disconnectable = connect(to: Listener.init { [weak toDisconnect] signal in
+		let disconnectable = connect(to: Listener.init { [weak self, weak toDisconnect] signal in
+			guard let this = self else {
+				toDisconnect?.disconnect()
+				return
+			}
 			switch signal {
 			case .next(let value):
+				Log.with(context: this, text: "consuming \(value): will callback")
 				callback(value)
 			case .stop:
+				Log.with(context: this, text: "consuming 'stop': will disconnect")
 				toDisconnect?.disconnect()
 			}
 		})
