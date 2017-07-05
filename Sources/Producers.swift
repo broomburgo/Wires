@@ -166,6 +166,57 @@ fileprivate enum FutureState<A> {
 
 // MARK: -
 
+public final class CombineLatest<Source1,Source2>: Producer {
+    public typealias ProducedType = (Source1,Source2)
+    public let productionQueue: DispatchQueue
+    private let root1: AnyProducer<Source1>
+    private let root2: AnyProducer<Source2>
+    private var value1: Source1? = nil
+    private var value2: Source2? = nil
+    private let speaker: Speaker<(Source1,Source2)>
+    private let disconnectableBag = DisconnectableBag.init()
+    
+    public init<P1,P2>(_ root1: P1, _ root2: P2) where P1: Producer, P1.ProducedType == Source1, P2: Producer, P2.ProducedType == Source2 {
+        self.productionQueue = root1.productionQueue
+        self.root1 = root1.any
+        self.root2 = root2.any
+        self.speaker = Speaker<(Source1,Source2)>.init(productionQueue: self.productionQueue)
+        
+        self.root1
+            .consume { [weak self] value1 in
+                guard let this = self else { return }
+                this.value1 = value1
+                guard let value1 = this.value1, let value2 = this.value2 else { return }
+                this.speaker.say(value1,value2)
+            }
+            .add(to: self.disconnectableBag)
+        
+        self.root2
+            .consume { [weak self] value2 in
+                guard let this = self else { return }
+                this.value2 = value2
+                guard let value1 = this.value1, let value2 = this.value2 else { return }
+                this.speaker.say(value1,value2)
+            }
+            .add(to: self.disconnectableBag)
+    }
+    
+    public func upon(_ callback: @escaping (Signal<(Source1, Source2)>) -> ()) -> Self {
+        self.speaker.upon(callback)
+        return self
+    }
+    
+    deinit {
+        disconnectableBag.disconnect()
+    }
+}
+
+public func combineLatest<P1,P2>(_ producer1: P1, _ producer2: P2) -> CombineLatest<P1.ProducedType,P2.ProducedType> where P1: Producer, P2: Producer {
+    return CombineLatest.init(producer1, producer2)
+}
+
+// MARK: -
+
 public final class Zip2Producer<Source1,Source2>: Producer {
 	public typealias ProducedType = (Source1,Source2)
 	public let productionQueue: DispatchQueue
