@@ -76,15 +76,14 @@ public final class MapProducer<Source,Target>: AbstractTransformer<Source,Target
 
 public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Target> {
     private let flatMappingFunction: (Source) -> AnyProducer<Target>
-    private var newProducers: [Int : AnyProducer<Target>] = [:]
-    private var currentIndex = 0
-    
+	private let disconnectableBag = DisconnectableBag.init()
+
     public init<P>(_ root: P, queue: DispatchQueue?, flatMappingFunction: @escaping (Source) -> AnyProducer<Target>) where P: Producer, P.ProducedType == Source {
         self.flatMappingFunction = flatMappingFunction
 		let transformationQueue = queue ?? (root as? TransformationQueueOwner)?.transformationQueue ?? .main
         super.init([root], transformationQueue: transformationQueue, productionQueue: root.productionQueue)
     }
-    
+
     public override func transform(_ signal: Signal<Source>) -> (@escaping (Signal<Target>) -> ()) -> () {
         return { [weak self] done in
             guard let this = self else { return }
@@ -93,23 +92,14 @@ public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Ta
             case .next(let value):
 				Log.with(context: this, text: "creating new producer from \(value)")
                 let newProducer = this.flatMappingFunction(value)
-                this.currentIndex += 1
-                let newIndex = this.currentIndex
-                this.newProducers[newIndex] = newProducer
-                newProducer.upon(done)
-                newProducer.upon { [weak this] newSignal in
-					guard let this = this else { return }
-					Log.with(context: this, text: "produced from flatMap: \(signal)")
-                    switch newSignal {
-                    case .stop:
-                        this.newProducers[newIndex] = nil
-                    case .next:
-                        break
-                    }
-                }
+				newProducer
+					.consume { value in
+						done(.next(value))
+					}
+					.add(to: this.disconnectableBag)
             case .stop:
-				Log.with(context: this, text: "removing all producers")
-                this.newProducers.removeAll()
+				Log.with(context: this, text: "disconnecting all producers")
+				this.disconnectableBag.disconnect()
                 done(.stop)
             }
         }
