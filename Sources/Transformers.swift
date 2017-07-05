@@ -96,11 +96,10 @@ public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Ta
             case .next(let value):
 				Log.with(context: this, text: "creating new producer from \(value)")
                 let newProducer = this.flatMappingFunction(value)
-				newProducer
-					.consume { value in
-						done(.next(value))
-					}
-					.add(to: this.disconnectableBag)
+				newProducer.consume(onStop: { done(.stop) }) { value in
+					done(.next(value))
+				}
+				.add(to: this.disconnectableBag)
             case .stop:
 				Log.with(context: this, text: "disconnecting all producers")
 				done(.stop)

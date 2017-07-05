@@ -13,10 +13,13 @@ class ProducersTests: XCTestCase {
 		("testFutureWillDo1",testFutureWillDo1),
 		("testFutureWillDo2",testFutureWillDo2),
 		("testFutureStartIdempotent",testFutureStartIdempotent),
-		("testCombineLatest",testCombineLatest),
+		("testCombineLatest1",testCombineLatest1),
+		("testCombineLatest2",testCombineLatest2),
 		("testZip2Producer1",testZip2Producer1),
 		("testZip2Producer2",testZip2Producer2),
-		("testZip3Producer",testZip3Producer)
+		("testZip2Producer3",testZip2Producer3),
+		("testZip3Producer1",testZip3Producer1),
+		("testZip3Producer2",testZip3Producer2)
 	]
 
 	func testSpeakerSendSingle(){
@@ -246,7 +249,7 @@ class ProducersTests: XCTestCase {
 		waitForExpectations(timeout: 1)
 	}
     
-    func testCombineLatest() {
+    func testCombineLatest1() {
         let speaker1 = Speaker<Int>.init()
         let speaker2 = Speaker<String>.init()
         
@@ -285,6 +288,44 @@ class ProducersTests: XCTestCase {
         
         waitForExpectations(timeout: 1)
     }
+
+	func testCombineLatest2() {
+		let speaker1 = Speaker<Int>.init()
+		let speaker2 = Speaker<String>.init()
+
+		let combined = combineLatest(speaker1, speaker2)
+
+		var values = [(Int,String)].init()
+		let expectedValues: [(Int,String)] = [
+			(0,"0"),
+			(1,"0"),
+			(1,"1"),
+			(1,"2")
+		]
+
+		combined.onNext { values.append(($0,$1)) }
+
+		speaker1.say(0)
+		speaker2.say("0")
+		speaker1.say(1)
+		speaker2.say("1")
+		speaker2.say("2")
+		speaker2.mute()
+		speaker2.say("3")
+		speaker1.say(2)
+		speaker1.say(3)
+
+		let willListen = expectation(description: "willListen")
+		after(0.1) {
+			XCTAssertEqual(values.count, expectedValues.count)
+			for (value1,value2) in zip(values, expectedValues) {
+				XCTAssert(value1 == value2)
+			}
+			willListen.fulfill()
+		}
+
+		waitForExpectations(timeout: 1)
+	}
 
 	func testZip2Producer1() {
 		let speaker1 = Speaker<Int>.init()
@@ -376,7 +417,46 @@ class ProducersTests: XCTestCase {
 		waitForExpectations(timeout: 1)
 	}
 
-	func testZip3Producer() {
+	func testZip2Producer3() {
+		let speaker1 = Speaker<Int>.init()
+		let speaker2 = Speaker<String>.init()
+
+		let zipped = zip(speaker1, speaker2)
+
+		var values = [(Int,String)].init()
+		let expectedValues: [(Int,String)] = [
+			(0,"0"),
+			(1,"1"),
+			(2,"2")
+		]
+
+		zipped.onNext { values.append(($0,$1)) }
+
+		speaker1.say(0)
+		speaker1.say(1)
+		speaker2.say("0")
+		speaker1.say(2)
+		speaker2.say("1")
+		speaker2.say("2")
+		speaker1.mute()
+		speaker1.say(3)
+		speaker2.say("3")
+		speaker1.say(3)
+		speaker1.say(3)
+
+		let willListen = expectation(description: "willListen")
+		after(0.1) {
+			XCTAssertEqual(values.count, expectedValues.count)
+			for (value1,value2) in zip(values, expectedValues) {
+				XCTAssert(value1 == value2)
+			}
+			willListen.fulfill()
+		}
+
+		waitForExpectations(timeout: 1)
+	}
+
+	func testZip3Producer1() {
 		let speaker1 = Speaker<Int>.init()
 		let speaker2 = Speaker<String>.init()
 		let speaker3 = Speaker<Bool>.init()
@@ -412,6 +492,66 @@ class ProducersTests: XCTestCase {
 		speaker2.say("3")
 		speaker2.say("4")
 		speaker3.say(true)
+		speaker3.say(false)
+		speaker2.say("5")
+		speaker2.say("6")
+		speaker3.say(true)
+		speaker1.say(6)
+		speaker2.say("7")
+		speaker2.say("8")
+		speaker3.say(true)
+		speaker3.say(true)
+		speaker3.say(false)
+		speaker2.say("9")
+		speaker1.say(7)
+		speaker3.say(true)
+		speaker3.say(false)
+
+		let willListen = expectation(description: "willListen")
+		after(0.1) {
+			XCTAssertEqual(values.count, expectedValues.count)
+			for (value1,value2) in zip(values, expectedValues) {
+				XCTAssert(value1 == value2)
+			}
+			willListen.fulfill()
+		}
+
+		waitForExpectations(timeout: 1)
+	}
+
+	func testZip3Producer2() {
+		let speaker1 = Speaker<Int>.init()
+		let speaker2 = Speaker<String>.init()
+		let speaker3 = Speaker<Bool>.init()
+
+		let zipped = zip(speaker1, speaker2, speaker3)
+
+		var values = [(Int,String,Bool)].init()
+		let expectedValues: [(Int,String,Bool)] = [
+			(0,"0",true),
+			(1,"1",false),
+			(2,"2",false),
+			(3,"3",true)
+		]
+
+		zipped.onNext { values.append(($0,$1,$2)) }
+
+		speaker1.say(0)
+		speaker1.say(1)
+		speaker3.say(true)
+		speaker1.say(2)
+		speaker1.say(3)
+		speaker2.say("0")
+		speaker3.say(false)
+		speaker2.say("1")
+		speaker2.say("2")
+		speaker3.say(false)
+		speaker1.say(4)
+		speaker1.say(5)
+		speaker2.say("3")
+		speaker2.say("4")
+		speaker3.say(true)
+		speaker3.mute()
 		speaker3.say(false)
 		speaker2.say("5")
 		speaker2.say("6")

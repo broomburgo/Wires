@@ -191,7 +191,10 @@ public final class CombineLatest<Source1,Source2>: Producer {
         self.speaker = Speaker<(Source1,Source2)>.init(productionQueue: self.productionQueue)
         
         self.root1
-            .consume { [weak self] value1 in
+			.consume(onStop: { [weak self] in
+				guard let this = self else { return }
+				this.speaker.mute()
+			}) { [weak self] value1 in
                 guard let this = self else { return }
                 this.value1 = value1
                 guard let value1 = this.value1, let value2 = this.value2 else { return }
@@ -200,7 +203,10 @@ public final class CombineLatest<Source1,Source2>: Producer {
             .add(to: self.disconnectableBag)
         
         self.root2
-            .consume { [weak self] value2 in
+			.consume(onStop: { [weak self] in
+				guard let this = self else { return }
+				this.speaker.mute()
+			}) { [weak self] value2 in
                 guard let this = self else { return }
                 this.value2 = value2
                 guard let value1 = this.value1, let value2 = this.value2 else { return }
@@ -243,7 +249,10 @@ public final class Zip2Producer<Source1,Source2>: Producer {
 		self.speaker = Speaker<(Source1,Source2)>.init(productionQueue: self.productionQueue)
 		
 		self.root1
-			.consume { [weak self] value1 in
+			.consume(onStop: { [weak self] in
+				guard let this = self else { return }
+				this.speaker.mute()
+			}) { [weak self] value1 in
 				guard let this = self else { return }
 				this.value1Queue.append(value1)
 				guard let enqueuedValue1 = this.value1Queue.first, let enqueuedValue2 = this.value2Queue.first else { return }
@@ -254,7 +263,10 @@ public final class Zip2Producer<Source1,Source2>: Producer {
 			.add(to: self.disconnectableBag)
 
 		self.root2
-			.consume { [weak self] value2 in
+			.consume(onStop: { [weak self] in
+				guard let this = self else { return }
+				this.speaker.mute()
+			}) { [weak self] value2 in
 				guard let this = self else { return }
 				this.value2Queue.append(value2)
 				guard let enqueuedValue1 = this.value1Queue.first, let enqueuedValue2 = this.value2Queue.first else { return }
@@ -302,7 +314,10 @@ public final class Zip3Producer<Source1,Source2,Source3>: Producer {
 		self.speaker = Speaker<(Source1,Source2,Source3)>.init(productionQueue: self.productionQueue)
 
 		self.root1
-			.consume { [weak self] value1 in
+			.consume(onStop: { [weak self] in
+				guard let this = self else { return }
+				this.speaker.mute()
+			}) { [weak self] value1 in
 				guard let this = self else { return }
 				this.value1Queue.append(value1)
 				guard
@@ -318,7 +333,10 @@ public final class Zip3Producer<Source1,Source2,Source3>: Producer {
 			.add(to: self.disconnectableBag)
 
 		self.root2
-			.consume { [weak self] value2 in
+			.consume(onStop: { [weak self] in
+				guard let this = self else { return }
+				this.speaker.mute()
+			}) { [weak self] value2 in
 				guard let this = self else { return }
 				this.value2Queue.append(value2)
 				guard
@@ -334,7 +352,10 @@ public final class Zip3Producer<Source1,Source2,Source3>: Producer {
 			.add(to: self.disconnectableBag)
 
 		self.root3
-			.consume { [weak self] value3 in
+			.consume(onStop: { [weak self] in
+				guard let this = self else { return }
+				this.speaker.mute()
+			}) { [weak self] value3 in
 				guard let this = self else { return }
 				this.value3Queue.append(value3)
 				guard
