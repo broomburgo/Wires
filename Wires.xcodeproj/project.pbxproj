@@ -42,6 +42,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		382187CF1F0E649F00B07A5D /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		382858FE1EF7DD8500C765DB /* Wires.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Wires.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		382859001EF7DD8500C765DB /* Wires-ios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Wires-ios.h"; sourceTree = "<group>"; };
 		382859011EF7DD8500C765DB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -129,14 +130,15 @@
 		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
-				OBJ_6 /* Package.swift */,
+				382187CF1F0E649F00B07A5D /* LICENSE */,
 				383439491F0A82B100B158AC /* README.md */,
+				OBJ_6 /* Package.swift */,
 				3859B7A21F092DA600B4E260 /* .travis.yml */,
 				3859B7A31F092DA600B4E260 /* codecov.yml */,
+				OBJ_12 /* Products */,
 				OBJ_7 /* Sources */,
 				OBJ_9 /* Tests */,
 				382858FF1EF7DD8500C765DB /* Wires-ios */,
-				OBJ_12 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
