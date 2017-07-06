@@ -3,5 +3,8 @@
 import PackageDescription
 
 let package = Package(
-    name: "Wires"
+	name: "Wires",
+	targets: [
+		Target(name: "Wires")
+	]
 )
