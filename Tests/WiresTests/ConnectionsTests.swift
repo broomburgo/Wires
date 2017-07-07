@@ -5,7 +5,8 @@ class ConnectionsTests: XCTestCase {
 	static var allTests = [
 		("testWiresConnect", testWiresConnect),
 		("testWiresDisconnect", testWiresDisconnect),
-		("testConsume", testConsume)
+		("testConsume", testConsume),
+		("testConsumeInterlacing",testConsumeInterlacing)
 	]
 
 	var currentWire: Wire? = nil
