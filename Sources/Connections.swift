@@ -61,11 +61,15 @@ public final class WireBundle: Wire, CustomStringConvertible {
     private var wires: [Wire] = []
 	public let description: String
 
-	public init(customDescription: String? = nil, _ wires: Wire...) {
+	public init(customDescription: String? = nil, _ wires: [Wire]) {
 		self.wires = wires
 		self.description = customDescription ?? "WireBundle"
 	}
-    
+
+	public convenience init(customDescription: String? = nil, _ wires: Wire...) {
+		self.init(customDescription: customDescription, wires)
+	}
+
     public func add(_ value: Wire) {
 		Log.with(context: self, text: "adding \(value)")
         wires.append(value)
