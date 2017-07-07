@@ -3,6 +3,12 @@ public protocol Wire {
     func disconnect()
 }
 
+extension Wire {
+	public static var disconnected: Wire {
+		return WireSingle.init()
+	}
+}
+
 public final class WireSingle: Wire, CustomStringConvertible {
     
     private var producer: Any?
@@ -11,7 +17,7 @@ public final class WireSingle: Wire, CustomStringConvertible {
     
     private(set) public var connected: Bool
 
-	private init() {
+	fileprivate init() {
 		self.producer = nil
 		self.consumer = nil
 		self.description = "Wire.disconnected"
@@ -37,10 +43,6 @@ public final class WireSingle: Wire, CustomStringConvertible {
         }
     }
 
-	public static var disconnected: WireSingle {
-		return WireSingle.init()
-	}
-    
     public func disconnect() {
 		Log.with(context: self, text: "disconnecting")
         producer = nil
