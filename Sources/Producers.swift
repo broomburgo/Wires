@@ -20,15 +20,17 @@ extension Producer {
 
 // MARK: -
 
-public final class Speaker<T>: Producer {
+public final class Speaker<T>: Producer, CustomStringConvertible {
 	public typealias ProducedType = T
 
 	private var callbacks: [(Signal<T>) -> ()] = []
 
     public let productionQueue: DispatchQueue
-    
-    public init(productionQueue: DispatchQueue = .main) {
+	public let description: String
+
+	public init(productionQueue: DispatchQueue = .main, customDescription: String? = nil) {
         self.productionQueue = productionQueue
+		self.description = customDescription ?? "Speaker<\(T.self)>"
 		Log.with(context: self, text: "init")
     }
     
@@ -182,7 +184,7 @@ public final class CombineLatest<Source1,Source2>: Producer {
     private var value1: Source1? = nil
     private var value2: Source2? = nil
     private let speaker: Speaker<(Source1,Source2)>
-    private let disconnectableBag = DisconnectableBag.init()
+    private let wireBundle = WireBundle.init()
     
     public init<P1,P2>(_ root1: P1, _ root2: P2) where P1: Producer, P1.ProducedType == Source1, P2: Producer, P2.ProducedType == Source2 {
         self.productionQueue = root1.productionQueue
@@ -200,7 +202,7 @@ public final class CombineLatest<Source1,Source2>: Producer {
                 guard let value1 = this.value1, let value2 = this.value2 else { return }
                 this.speaker.say(value1,value2)
             }
-            .add(to: self.disconnectableBag)
+            .add(to: self.wireBundle)
         
         self.root2
 			.consume(onStop: { [weak self] in
@@ -212,7 +214,7 @@ public final class CombineLatest<Source1,Source2>: Producer {
                 guard let value1 = this.value1, let value2 = this.value2 else { return }
                 this.speaker.say(value1,value2)
             }
-            .add(to: self.disconnectableBag)
+            .add(to: self.wireBundle)
     }
     
     public func upon(_ callback: @escaping (Signal<(Source1, Source2)>) -> ()) -> Self {
@@ -222,7 +224,7 @@ public final class CombineLatest<Source1,Source2>: Producer {
     
     deinit {
 		speaker.mute()
-        disconnectableBag.disconnect()
+        wireBundle.disconnect()
     }
 }
 
@@ -240,7 +242,7 @@ public final class Zip2Producer<Source1,Source2>: Producer {
 	private var value1Queue: [Source1] = []
 	private var value2Queue: [Source2] = []
 	private let speaker: Speaker<(Source1,Source2)>
-	private let disconnectableBag = DisconnectableBag.init()
+	private let wireBundle = WireBundle.init()
 
 	public init<P1,P2>(_ root1: P1, _ root2: P2) where P1: Producer, P2: Producer, P1.ProducedType == Source1, P2.ProducedType == Source2 {
 		self.productionQueue = root1.productionQueue
@@ -260,7 +262,7 @@ public final class Zip2Producer<Source1,Source2>: Producer {
 				this.value2Queue.removeFirst(1)
 				this.speaker.say((enqueuedValue1,enqueuedValue2))
 			}
-			.add(to: self.disconnectableBag)
+			.add(to: self.wireBundle)
 
 		self.root2
 			.consume(onStop: { [weak self] in
@@ -274,7 +276,7 @@ public final class Zip2Producer<Source1,Source2>: Producer {
 				this.value2Queue.removeFirst(1)
 				this.speaker.say((enqueuedValue1,enqueuedValue2))
 			}
-			.add(to: self.disconnectableBag)
+			.add(to: self.wireBundle)
 	}
 
 	public func upon(_ callback: @escaping (Signal<(Source1, Source2)>) -> ()) -> Self {
@@ -284,7 +286,7 @@ public final class Zip2Producer<Source1,Source2>: Producer {
 
 	deinit {
 		speaker.mute()
-		disconnectableBag.disconnect()
+		wireBundle.disconnect()
 	}
 }
 
@@ -304,7 +306,7 @@ public final class Zip3Producer<Source1,Source2,Source3>: Producer {
 	private var value2Queue: [Source2] = []
 	private var value3Queue: [Source3] = []
 	private let speaker: Speaker<(Source1,Source2,Source3)>
-	private let disconnectableBag = DisconnectableBag.init()
+	private let wireBundle = WireBundle.init()
 
 	public init<P1,P2,P3>(_ root1: P1, _ root2: P2, _ root3: P3) where P1: Producer, P2: Producer, P3: Producer, P1.ProducedType == Source1, P2.ProducedType == Source2, P3.ProducedType == Source3 {
 		self.productionQueue = root1.productionQueue
@@ -330,7 +332,7 @@ public final class Zip3Producer<Source1,Source2,Source3>: Producer {
 				this.value3Queue.removeFirst(1)
 				this.speaker.say((enqueuedValue1,enqueuedValue2,enqueuedValue3))
 			}
-			.add(to: self.disconnectableBag)
+			.add(to: self.wireBundle)
 
 		self.root2
 			.consume(onStop: { [weak self] in
@@ -349,7 +351,7 @@ public final class Zip3Producer<Source1,Source2,Source3>: Producer {
 				this.value3Queue.removeFirst(1)
 				this.speaker.say((enqueuedValue1,enqueuedValue2,enqueuedValue3))
 			}
-			.add(to: self.disconnectableBag)
+			.add(to: self.wireBundle)
 
 		self.root3
 			.consume(onStop: { [weak self] in
@@ -368,7 +370,7 @@ public final class Zip3Producer<Source1,Source2,Source3>: Producer {
 				this.value3Queue.removeFirst(1)
 				this.speaker.say((enqueuedValue1,enqueuedValue2,enqueuedValue3))
 			}
-			.add(to: self.disconnectableBag)
+			.add(to: self.wireBundle)
 	}
 
 	public func upon(_ callback: @escaping (Signal<(Source1, Source2, Source3)>) -> ()) -> Self {
@@ -378,7 +380,7 @@ public final class Zip3Producer<Source1,Source2,Source3>: Producer {
 
 	deinit {
 		speaker.mute()
-		disconnectableBag.disconnect()
+		wireBundle.disconnect()
 	}
 }
 

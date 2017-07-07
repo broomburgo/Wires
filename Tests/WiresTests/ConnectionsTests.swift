@@ -5,7 +5,8 @@ class ConnectionsTests: XCTestCase {
 	static var allTests = [
 		("testWiresConnect", testWiresConnect),
 		("testWiresDisconnect", testWiresDisconnect),
-		("testConsume", testConsume)
+		("testConsume", testConsume),
+		("testConsumeInterlacing",testConsumeInterlacing)
 	]
 
 	var currentWire: Wire? = nil
@@ -86,6 +87,63 @@ class ConnectionsTests: XCTestCase {
 		let willListen = expectation(description: "willListen")
 		after(0.3) { 
 			XCTAssertEqual(values, [1,2,3])
+			willListen.fulfill()
+		}
+		waitForExpectations(timeout: 1)
+	}
+
+	func testConsumeInterlacing() {
+		var values: [Int] = []
+
+		let speaker1 = Speaker<Int>.init()
+		let speaker2 = Speaker<Int>.init()
+		let speaker3 = Speaker<Int>.init()
+
+		var subwireIndex = 0
+		var subbundleIndex = 0
+
+		currentWire = speaker1.consumeInterlacing { value in
+			values.append(value)
+			subwireIndex += 1
+			subbundleIndex += 1
+			return WireBundle.init(
+				speaker2.consume { value in
+					values.append(value)
+				},
+				speaker3.consume { value in
+					values.append(value)
+			})
+		}
+
+		speaker1.say(1)
+		after(0.1) {
+			speaker2.say(10)
+			speaker3.say(100)
+			speaker1.say(2)
+			after(0.1) {
+				speaker2.say(20)
+				speaker3.say(200)
+				speaker2.mute()
+				speaker2.say(30)
+				speaker3.say(300)
+				speaker1.say(4)
+				after(0.1) {
+					speaker2.say(40)
+					speaker3.say(400)
+					speaker1.say(5)
+					speaker1.mute()
+					after(0.1) {
+						speaker2.say(50)
+						speaker3.say(500)
+						speaker1.say(6)
+					}
+				}
+			}
+		}
+
+		let willListen = expectation(description: "willListen")
+		after(0.6) {
+			XCTAssertEqual(values, [1,10,100,2,20,20,200,200,300,300,4,40,400,400,400,5])
 			willListen.fulfill()
 		}
 		waitForExpectations(timeout: 1)
