@@ -3,10 +3,8 @@ public protocol Wire {
     func disconnect()
 }
 
-extension Wire {
-	public static var disconnected: Wire {
-		return WireSingle.init()
-	}
+public func disconnected() -> Wire {
+	return WireSingle.disconnected
 }
 
 public final class WireSingle: Wire, CustomStringConvertible {
@@ -17,13 +15,17 @@ public final class WireSingle: Wire, CustomStringConvertible {
     
     private(set) public var connected: Bool
 
-	fileprivate init() {
+	private init() {
 		self.producer = nil
 		self.consumer = nil
 		self.description = "Wire.disconnected"
 		self.connected = false
 	}
-    
+
+	public static var disconnected: Wire {
+		return WireSingle.init()
+	}
+
 	public init<P,C>(customDescription: String? = nil, producer: P, consumer: C) where P: Producer, C: Consumer, P.ProducedType == C.ConsumedType {
         self.producer = producer
         self.consumer = consumer
