@@ -1,18 +1,20 @@
-public protocol Disconnectable {
+public protocol Wire {
     var connected: Bool { get }
     func disconnect()
 }
 
-public final class Wire: Disconnectable {
+public final class WireSingle: Wire, CustomStringConvertible {
     
     private var producer: Any?
     private var consumer: Any?
+	public let description: String
     
     private(set) public var connected: Bool
     
-    public init<P,C>(producer: P, consumer: C) where P: Producer, C: Consumer, P.ProducedType == C.ConsumedType {
+	public init<P,C>(customDescription: String? = nil, producer: P, consumer: C) where P: Producer, C: Consumer, P.ProducedType == C.ConsumedType {
         self.producer = producer
         self.consumer = consumer
+		self.description = customDescription ?? "WireSingle(\(producer)>--<\(consumer))"
         self.connected = true
 		Log.with(context: self, text: "connecting \(producer) to \(consumer)")
 
@@ -40,44 +42,52 @@ public final class Wire: Disconnectable {
 	}
 }
 
-public final class DisconnectableBag: Disconnectable {
-    private var disconnectables: [Disconnectable] = []
+public final class WireBundle: Wire, CustomStringConvertible {
+    private var wires: [Wire] = []
+	public let description: String
+
+	public init(customDescription: String? = nil, _ wires: Wire...) {
+		self.wires = wires
+		self.description = customDescription ?? "WireBundle"
+	}
     
-    public init() {}
-    
-    public func add(_ value: Disconnectable) {
+    public func add(_ value: Wire) {
 		Log.with(context: self, text: "adding \(value)")
-        disconnectables.append(value)
+        wires.append(value)
     }
     
     public var connected: Bool {
-        return disconnectables
+        return wires
             .reduce(false) { $0 || $1.connected }
     }
     
     public func disconnect() {
 		Log.with(context: self, text: "disconnecting")
-        disconnectables.forEach { $0.disconnect() }
-        disconnectables.removeAll()
+        wires.forEach { $0.disconnect() }
+        wires.removeAll()
     }
 }
 
-extension Disconnectable {
-    public func add(to bag: DisconnectableBag) {
-        bag.add(self)
+extension Wire {
+	public func interlace(with other: Wire) -> Wire {
+		return WireBundle.init(self,other)
+	}
+
+    public func add(to bundle: WireBundle) {
+        bundle.add(self)
     }
 }
 
 extension Producer {
-    public func connect<C>(to consumer: C) -> Wire where C: Consumer, C.ConsumedType == ProducedType {
-        return Wire.init(producer: self, consumer: consumer)
+	public func connect<C>(to consumer: C) -> Wire where C: Consumer, C.ConsumedType == ProducedType {
+		return WireSingle.init(producer: self, consumer: consumer)
     }
 
 	public func consume(onStop: @escaping () -> () = {}, onNext: @escaping (ProducedType) -> ()) -> Wire {
-		var toDisconnect: Wire? = nil
-		let disconnectable = connect(to: Listener.init { [weak self, weak toDisconnect] signal in
+		let bundle = WireBundle.init()
+		connect(to: Listener.init { [weak self, weak bundle] signal in
 			guard let this = self else {
-				toDisconnect?.disconnect()
+				bundle?.disconnect()
 				return
 			}
 			switch signal {
@@ -87,10 +97,24 @@ extension Producer {
 			case .stop:
 				Log.with(context: this, text: "consuming 'stop': will disconnect")
 				onStop()
-				toDisconnect?.disconnect()
+				bundle?.disconnect()
 			}
 		})
-		toDisconnect = disconnectable
-		return disconnectable
+		.add(to: bundle)
+		return bundle
+	}
+
+	public func consumeInterlacing(onStop: @escaping () -> () = {}, onNext: @escaping (ProducedType) -> Wire) -> Wire {
+		let bundle = WireBundle.init()
+		consume(
+			onStop: { [weak bundle] in
+				bundle?.disconnect()
+				onStop()
+			},
+			onNext: { [weak bundle] value in
+				bundle?.add(onNext(value))
+		})
+		.add(to: bundle)
+		return bundle
 	}
 }

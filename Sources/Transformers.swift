@@ -80,7 +80,7 @@ public final class MapProducer<Source,Target>: AbstractTransformer<Source,Target
 
 public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Target> {
     private let flatMappingFunction: (Source) -> AnyProducer<Target>
-	private let disconnectableBag = DisconnectableBag.init()
+	private let wireBundle = WireBundle.init()
 
     public init<P>(_ root: P, queue: DispatchQueue?, flatMappingFunction: @escaping (Source) -> AnyProducer<Target>) where P: Producer, P.ProducedType == Source {
         self.flatMappingFunction = flatMappingFunction
@@ -99,11 +99,11 @@ public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Ta
 				newProducer.consume(onStop: { done(.stop) }) { value in
 					done(.next(value))
 				}
-				.add(to: this.disconnectableBag)
+				.add(to: this.wireBundle)
             case .stop:
 				Log.with(context: this, text: "disconnecting all producers")
 				done(.stop)
-				this.disconnectableBag.disconnect()
+				this.wireBundle.disconnect()
             }
         }
     }
