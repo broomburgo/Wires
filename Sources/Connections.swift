@@ -10,6 +10,13 @@ public final class WireSingle: Wire, CustomStringConvertible {
 	public let description: String
     
     private(set) public var connected: Bool
+
+	private init() {
+		self.producer = nil
+		self.consumer = nil
+		self.description = "Wire.disconnected"
+		self.connected = false
+	}
     
 	public init<P,C>(customDescription: String? = nil, producer: P, consumer: C) where P: Producer, C: Consumer, P.ProducedType == C.ConsumedType {
         self.producer = producer
@@ -29,6 +36,10 @@ public final class WireSingle: Wire, CustomStringConvertible {
             currentConsumer.receive(signal)
         }
     }
+
+	public static var disconnected: WireSingle {
+		return WireSingle.init()
+	}
     
     public func disconnect() {
 		Log.with(context: self, text: "disconnecting")
