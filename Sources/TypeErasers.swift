@@ -30,7 +30,7 @@ class BoxProducer<ProducerBase: Producer>: BoxProducerBase<ProducerBase.Produced
     }
 }
 
-public class AnyProducer<A>: Producer {
+public final class AnyProducer<A>: Producer {
     public typealias ProducedType = A
     
     private let box: BoxProducerBase<A>
@@ -73,7 +73,7 @@ class BoxConsumer<ConsumerBase: Consumer>: BoxConsumerBase<ConsumerBase.Consumed
     }
 }
 
-public class AnyConsumer<A>: Consumer {
+public final class AnyConsumer<A>: Consumer {
     public typealias ConsumedType = A
     
     private let box: BoxConsumerBase<A>
