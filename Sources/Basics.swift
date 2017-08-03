@@ -1,4 +1,6 @@
 import Dispatch
+import Abstract
+import Monads
 
 public enum Signal<A>: CustomStringConvertible {
     case next(A)
@@ -77,3 +79,29 @@ public protocol Consumer: class {
 	@discardableResult
 	func receive(_ signal: Signal<ConsumedType>) -> Self
 }
+
+// sourcery: transformer1
+// sourcery: transformer2
+// sourcery: transformer3
+// sourcery: concrete = "Optional"
+extension OptionalType {}
+
+// sourcery: transformer1
+// sourcery: transformer2
+// sourcery: transformer3
+// sourcery: concrete = "Result"
+// sourcery: context = "ErrorType"
+extension ResultType {}
+
+// sourcery: transformer1
+// sourcery: transformer2
+// sourcery: transformer3
+// sourcery: concrete = "Writer"
+// sourcery: context = "LogType"
+extension WriterType {}
+
+// sourcery: transformer1
+// sourcery: transformer2
+// sourcery: transformer3
+// sourcery: concrete = "Effect"
+extension EffectType {}

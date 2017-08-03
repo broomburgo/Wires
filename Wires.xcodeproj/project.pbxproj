@@ -33,6 +33,8 @@
 		389D15A31F322BB2003D4CCA /* Monads.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 389D15981F322B62003D4CCA /* Monads.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		389D15A51F322C2C003D4CCA /* Monad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389D15A41F322C2C003D4CCA /* Monad.swift */; };
 		389D15A61F322C2C003D4CCA /* Monad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389D15A41F322C2C003D4CCA /* Monad.swift */; };
+		38CDD9E21F3371B2007ED827 /* MonadTransformers.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38CDD9E11F3371B2007ED827 /* MonadTransformers.generated.swift */; };
+		38CDD9E31F3371B2007ED827 /* MonadTransformers.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38CDD9E11F3371B2007ED827 /* MonadTransformers.generated.swift */; };
 		AA9C81DE1F0101F2006A3B26 /* TransformersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9C81DD1F0101F2006A3B26 /* TransformersTests.swift */; };
 		AAF11E191EF967CC00B994AF /* ProducersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF11E181EF967CC00B994AF /* ProducersTests.swift */; };
 		AAF11E1B1EF97EC900B994AF /* ConsumersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF11E1A1EF97EC900B994AF /* ConsumersTests.swift */; };
@@ -86,6 +88,8 @@
 		389D159D1F322B77003D4CCA /* Abstract.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Abstract.framework; path = Carthage/Build/iOS/Abstract.framework; sourceTree = "<group>"; };
 		389D159E1F322B77003D4CCA /* Monads.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Monads.framework; path = Carthage/Build/iOS/Monads.framework; sourceTree = "<group>"; };
 		389D15A41F322C2C003D4CCA /* Monad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Monad.swift; sourceTree = "<group>"; };
+		38CDD9DE1F334D2E007ED827 /* Templates */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Templates; sourceTree = "<group>"; };
+		38CDD9E11F3371B2007ED827 /* MonadTransformers.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MonadTransformers.generated.swift; path = Generated/MonadTransformers.generated.swift; sourceTree = "<group>"; };
 		AA9C81DD1F0101F2006A3B26 /* TransformersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransformersTests.swift; sourceTree = "<group>"; };
 		AAC586C21F026C5F00BAB4D5 /* TestUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestUtilities.swift; sourceTree = "<group>"; };
 		AAF11E181EF967CC00B994AF /* ProducersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProducersTests.swift; sourceTree = "<group>"; };
@@ -176,6 +180,7 @@
 		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
+				38CDD9DE1F334D2E007ED827 /* Templates */,
 				389D15961F322AE6003D4CCA /* Frameworks */,
 				382187CF1F0E649F00B07A5D /* LICENSE */,
 				383439491F0A82B100B158AC /* README.md */,
@@ -192,6 +197,7 @@
 		OBJ_7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				38CDD9E11F3371B2007ED827 /* MonadTransformers.generated.swift */,
 				3859B7961F09184900B4E260 /* Basics.swift */,
 				3859B7991F09193500B4E260 /* Connections.swift */,
 				3859B79F1F091D6500B4E260 /* Consumers.swift */,
@@ -231,6 +237,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 382859031EF7DD8500C765DB /* Build configuration list for PBXNativeTarget "Wires-ios" */;
 			buildPhases = (
+				38CDD9E01F336F74007ED827 /* ShellScript */,
 				382858F91EF7DD8500C765DB /* Sources */,
 				382858FA1EF7DD8500C765DB /* Frameworks */,
 				382858FB1EF7DD8500C765DB /* Headers */,
@@ -249,6 +256,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_16 /* Build configuration list for PBXNativeTarget "Wires" */;
 			buildPhases = (
+				38CDD9DF1F336F6A007ED827 /* ShellScript */,
 				OBJ_19 /* Sources */,
 				OBJ_21 /* Frameworks */,
 			);
@@ -323,6 +331,35 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		38CDD9DF1F336F6A007ED827 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "bash sourceryGeneration.sh";
+		};
+		38CDD9E01F336F74007ED827 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "bash sourceryGeneration.sh";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		382858F91EF7DD8500C765DB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -333,6 +370,7 @@
 				382859061EF7DDAD00C765DB /* Producers.swift in Sources */,
 				384888F31F0A583300FE6CA4 /* Logging.swift in Sources */,
 				3859B7A11F091D6500B4E260 /* Consumers.swift in Sources */,
+				38CDD9E31F3371B2007ED827 /* MonadTransformers.generated.swift in Sources */,
 				389D15A61F322C2C003D4CCA /* Monad.swift in Sources */,
 				3859B7951F09182000B4E260 /* Transformers.swift in Sources */,
 				3859B79B1F09193500B4E260 /* Connections.swift in Sources */,
@@ -348,6 +386,7 @@
 				OBJ_20 /* Producers.swift in Sources */,
 				3859B7A01F091D6500B4E260 /* Consumers.swift in Sources */,
 				3859B7941F09182000B4E260 /* Transformers.swift in Sources */,
+				38CDD9E21F3371B2007ED827 /* MonadTransformers.generated.swift in Sources */,
 				389D15A51F322C2C003D4CCA /* Monad.swift in Sources */,
 				384888F11F0A465900FE6CA4 /* Logging.swift in Sources */,
 				3859B79A1F09193500B4E260 /* Connections.swift in Sources */,
