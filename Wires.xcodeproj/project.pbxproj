@@ -23,6 +23,8 @@
 		3859B7A01F091D6500B4E260 /* Consumers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3859B79F1F091D6500B4E260 /* Consumers.swift */; };
 		3859B7A11F091D6500B4E260 /* Consumers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3859B79F1F091D6500B4E260 /* Consumers.swift */; };
 		387745981F0404D000E1D611 /* TestUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAC586C21F026C5F00BAB4D5 /* TestUtilities.swift */; };
+		389251491F345AC8008F42E0 /* MonadTransformers.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389251481F345AC8008F42E0 /* MonadTransformers.generated.swift */; };
+		3892514A1F345AC8008F42E0 /* MonadTransformers.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389251481F345AC8008F42E0 /* MonadTransformers.generated.swift */; };
 		389D15991F322B62003D4CCA /* Abstract.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 389D15971F322B62003D4CCA /* Abstract.framework */; };
 		389D159A1F322B62003D4CCA /* Abstract.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 389D15971F322B62003D4CCA /* Abstract.framework */; };
 		389D159B1F322B63003D4CCA /* Monads.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 389D15981F322B62003D4CCA /* Monads.framework */; };
@@ -33,8 +35,6 @@
 		389D15A31F322BB2003D4CCA /* Monads.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 389D15981F322B62003D4CCA /* Monads.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		389D15A51F322C2C003D4CCA /* Monad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389D15A41F322C2C003D4CCA /* Monad.swift */; };
 		389D15A61F322C2C003D4CCA /* Monad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389D15A41F322C2C003D4CCA /* Monad.swift */; };
-		38CDD9E21F3371B2007ED827 /* MonadTransformers.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38CDD9E11F3371B2007ED827 /* MonadTransformers.generated.swift */; };
-		38CDD9E31F3371B2007ED827 /* MonadTransformers.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38CDD9E11F3371B2007ED827 /* MonadTransformers.generated.swift */; };
 		AA9C81DE1F0101F2006A3B26 /* TransformersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9C81DD1F0101F2006A3B26 /* TransformersTests.swift */; };
 		AAF11E191EF967CC00B994AF /* ProducersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF11E181EF967CC00B994AF /* ProducersTests.swift */; };
 		AAF11E1B1EF97EC900B994AF /* ConsumersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF11E1A1EF97EC900B994AF /* ConsumersTests.swift */; };
@@ -83,13 +83,13 @@
 		3859B79F1F091D6500B4E260 /* Consumers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Consumers.swift; sourceTree = "<group>"; };
 		3859B7A21F092DA600B4E260 /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		3859B7A31F092DA600B4E260 /* codecov.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = codecov.yml; sourceTree = "<group>"; };
+		389251481F345AC8008F42E0 /* MonadTransformers.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MonadTransformers.generated.swift; sourceTree = "<group>"; };
 		389D15971F322B62003D4CCA /* Abstract.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Abstract.framework; path = Carthage/Build/Mac/Abstract.framework; sourceTree = "<group>"; };
 		389D15981F322B62003D4CCA /* Monads.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Monads.framework; path = Carthage/Build/Mac/Monads.framework; sourceTree = "<group>"; };
 		389D159D1F322B77003D4CCA /* Abstract.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Abstract.framework; path = Carthage/Build/iOS/Abstract.framework; sourceTree = "<group>"; };
 		389D159E1F322B77003D4CCA /* Monads.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Monads.framework; path = Carthage/Build/iOS/Monads.framework; sourceTree = "<group>"; };
 		389D15A41F322C2C003D4CCA /* Monad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Monad.swift; sourceTree = "<group>"; };
 		38CDD9DE1F334D2E007ED827 /* Templates */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Templates; sourceTree = "<group>"; };
-		38CDD9E11F3371B2007ED827 /* MonadTransformers.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MonadTransformers.generated.swift; path = Generated/MonadTransformers.generated.swift; sourceTree = "<group>"; };
 		AA9C81DD1F0101F2006A3B26 /* TransformersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransformersTests.swift; sourceTree = "<group>"; };
 		AAC586C21F026C5F00BAB4D5 /* TestUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestUtilities.swift; sourceTree = "<group>"; };
 		AAF11E181EF967CC00B994AF /* ProducersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProducersTests.swift; sourceTree = "<group>"; };
@@ -142,6 +142,14 @@
 			path = "Wires-ios";
 			sourceTree = "<group>";
 		};
+		389251471F345AC8008F42E0 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				389251481F345AC8008F42E0 /* MonadTransformers.generated.swift */,
+			);
+			path = Generated;
+			sourceTree = "<group>";
+		};
 		389D15961F322AE6003D4CCA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -156,10 +164,10 @@
 		OBJ_10 /* WiresTests */ = {
 			isa = PBXGroup;
 			children = (
-				AAC586C21F026C5F00BAB4D5 /* TestUtilities.swift */,
 				OBJ_11 /* ConnectionsTests.swift */,
 				AAF11E1A1EF97EC900B994AF /* ConsumersTests.swift */,
 				AAF11E181EF967CC00B994AF /* ProducersTests.swift */,
+				AAC586C21F026C5F00BAB4D5 /* TestUtilities.swift */,
 				AA9C81DD1F0101F2006A3B26 /* TransformersTests.swift */,
 				384888EE1F0A231400FE6CA4 /* TypeErasersTests.swift */,
 			);
@@ -180,13 +188,13 @@
 		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
-				38CDD9DE1F334D2E007ED827 /* Templates */,
-				389D15961F322AE6003D4CCA /* Frameworks */,
 				382187CF1F0E649F00B07A5D /* LICENSE */,
+				38CDD9DE1F334D2E007ED827 /* Templates */,
 				383439491F0A82B100B158AC /* README.md */,
 				OBJ_6 /* Package.swift */,
 				3859B7A21F092DA600B4E260 /* .travis.yml */,
 				3859B7A31F092DA600B4E260 /* codecov.yml */,
+				389D15961F322AE6003D4CCA /* Frameworks */,
 				OBJ_12 /* Products */,
 				OBJ_7 /* Sources */,
 				OBJ_9 /* Tests */,
@@ -197,15 +205,15 @@
 		OBJ_7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				38CDD9E11F3371B2007ED827 /* MonadTransformers.generated.swift */,
 				3859B7961F09184900B4E260 /* Basics.swift */,
 				3859B7991F09193500B4E260 /* Connections.swift */,
 				3859B79F1F091D6500B4E260 /* Consumers.swift */,
 				384888F01F0A465900FE6CA4 /* Logging.swift */,
+				389D15A41F322C2C003D4CCA /* Monad.swift */,
 				OBJ_8 /* Producers.swift */,
 				3859B7931F09182000B4E260 /* Transformers.swift */,
 				3859B79C1F091A7C00B4E260 /* TypeErasers.swift */,
-				389D15A41F322C2C003D4CCA /* Monad.swift */,
+				389251471F345AC8008F42E0 /* Generated */,
 			);
 			path = Sources;
 			sourceTree = SOURCE_ROOT;
@@ -370,7 +378,7 @@
 				382859061EF7DDAD00C765DB /* Producers.swift in Sources */,
 				384888F31F0A583300FE6CA4 /* Logging.swift in Sources */,
 				3859B7A11F091D6500B4E260 /* Consumers.swift in Sources */,
-				38CDD9E31F3371B2007ED827 /* MonadTransformers.generated.swift in Sources */,
+				3892514A1F345AC8008F42E0 /* MonadTransformers.generated.swift in Sources */,
 				389D15A61F322C2C003D4CCA /* Monad.swift in Sources */,
 				3859B7951F09182000B4E260 /* Transformers.swift in Sources */,
 				3859B79B1F09193500B4E260 /* Connections.swift in Sources */,
@@ -386,7 +394,7 @@
 				OBJ_20 /* Producers.swift in Sources */,
 				3859B7A01F091D6500B4E260 /* Consumers.swift in Sources */,
 				3859B7941F09182000B4E260 /* Transformers.swift in Sources */,
-				38CDD9E21F3371B2007ED827 /* MonadTransformers.generated.swift in Sources */,
+				389251491F345AC8008F42E0 /* MonadTransformers.generated.swift in Sources */,
 				389D15A51F322C2C003D4CCA /* Monad.swift in Sources */,
 				384888F11F0A465900FE6CA4 /* Logging.swift in Sources */,
 				3859B79A1F09193500B4E260 /* Connections.swift in Sources */,
