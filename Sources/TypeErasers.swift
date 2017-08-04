@@ -1,8 +1,9 @@
 import Dispatch
+import Monads
 
 class BoxProducerBase<Wrapped>: Producer {
     typealias ProducedType = Wrapped
-    
+
     var productionQueue: DispatchQueue {
         fatalError()
     }
@@ -30,7 +31,8 @@ class BoxProducer<ProducerBase: Producer>: BoxProducerBase<ProducerBase.Produced
     }
 }
 
-public final class AnyProducer<A>: Producer {
+public final class AnyProducer<A>: Producer, PureConstructible  {
+	public typealias ElementType = ProducedType
     public typealias ProducedType = A
     
     private let box: BoxProducerBase<A>
@@ -43,7 +45,11 @@ public final class AnyProducer<A>: Producer {
         self.box = BoxProducer(base: base)
 		Log.with(context: self, text: "init from \(base)")
     }
-    
+
+	public convenience init(_ value: A) {
+		self.init(Fixed.init(value))
+	}
+
     @discardableResult
     public func upon(_ callback: @escaping (Signal<A>) -> ()) -> Self {
         box.upon(callback)
