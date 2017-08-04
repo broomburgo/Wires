@@ -1,0 +1,15 @@
+{
+  "iOS" : [
+    {
+      "hash" : "58e9a8554eaf06099021c0db7ef0bf77510e75afd6290427bfad7cd74e56fb44",
+      "name" : "Abstract"
+    }
+  ],
+  "commitish" : "a891f7af76aa7133b4be4b7d45f48e4b0cbdc628",
+  "Mac" : [
+    {
+      "hash" : "2b50c6e740f0395151321c46aa0767925d15f8a4301a93b5f07acb0968e587c0",
+      "name" : "Abstract"
+    }
+  ]
+}

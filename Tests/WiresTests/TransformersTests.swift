@@ -566,7 +566,7 @@ class TransformersTests: XCTestCase {
         
         let expectedValue1 = 23
         
-        let cached = AnyProducer.init(speaker.cached)
+        let cached = AnyProducer<Int>.init(speaker.cached)
         
         speaker.say(expectedValue1)
         

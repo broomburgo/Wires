@@ -1,4 +1,5 @@
 import Dispatch
+import Monads
 
 extension Producer {
 	@discardableResult
@@ -65,18 +66,23 @@ public final class Speaker<T>: Producer, CustomStringConvertible {
 
 // MARK: -
 
-public final class Fixed<T>: Producer {
+public final class Fixed<T>: Producer, PureConstructible {
     public typealias ProducedType = T
-    
+	public typealias ElementType = ProducedType
+
     public var productionQueue: DispatchQueue
     public let value: T
     
-    public init(_ value: T, productionQueue: DispatchQueue = .main) {
+    public init(_ value: T, productionQueue: DispatchQueue) {
         self.value = value
         self.productionQueue = productionQueue
 		Log.with(context: self, text: "init with \(value)")
     }
-    
+
+	public convenience init(_ value: T) {
+		self.init(value, productionQueue: .main)
+	}
+
     @discardableResult
     public func upon(_ callback: @escaping (Signal<T>) -> ()) -> Self {
 		Log.with(context: self, text: "yielding \(value)")
@@ -101,8 +107,9 @@ extension Fixed where T: Sequence {
 
 // MARK: -
 
-public final class Future<T>: Producer {
+public final class Future<T>: Producer, PureConstructible {
 	public typealias ProducedType = T
+	public typealias ElementType = ProducedType
 
 	private let execute: (@escaping (T) -> ()) -> ()
 	private let speaker: Speaker<T>
@@ -129,6 +136,10 @@ public final class Future<T>: Producer {
 		self.execute = execute
 		self.speaker = Speaker.init(productionQueue: productionQueue)
 		Log.with(context: self, text: "init")
+	}
+
+	public convenience init(_ value: T) {
+		self.init(execute: { $0(value) })
 	}
 
 	public var value: T? {

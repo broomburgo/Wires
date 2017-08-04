@@ -1,0 +1,134 @@
+{% macro getConcrete1 type1 external %}AnyProducer<{{ type1.annotations.concrete }}<A{% if type1.annotations.context %},{% if external %}{{ external }}.{% endif %}ProducedType.{{ type1.annotations.context }}{% endif %}>>{% endmacro %}
+
+{% macro getConcrete2 type1 type2 external %}AnyProducer<{{ type1.annotations.concrete }}<{{ type2.annotations.concrete }}<A{% if type2.annotations.context %},{% if external %}{{ external }}.{% endif %}ProducedType.ElementType.{{ type2.annotations.context }}{% endif %}>{% if type1.annotations.context %},{% if external %}{{ external }}.{% endif %}ProducedType.{{ type1.annotations.context }}{% endif %}>>{% endmacro %}
+
+{% macro getConcrete3 type1 type2 type3 external %}AnyProducer<{{ type1.annotations.concrete }}<{{ type2.annotations.concrete }}<{{ type3.annotations.concrete }}<A{% if type3.annotations.context %},{% if external %}{{ external }}.{% endif %}ProducedType.ElementType.ElementType.{{ type3.annotations.context }}{% endif %}>{% if type2.annotations.context %},{% if external %}{{ external }}.{% endif %}ProducedType.ElementType.{{ type2.annotations.context }}{% endif %}>{% if type1.annotations.context %},{% if external %}{{ external }}.{% endif %}ProducedType.{{ type1.annotations.context }}{% endif %}>>{% endmacro %}
+
+import Abstract
+import Monads
+
+{% for type1 in types.all|annotated:"transformer1"|annotated:"concrete" where type1.kind == "extension" %}
+
+extension Producer where ProducedType: {{ type1.name }} {
+	public func mapT <A> (_ transform: @escaping (ProducedType.ElementType) -> A) -> {% call getConcrete1 type1 "" %} {
+		return map { $0.map(transform) }.any
+	}
+
+	public func flatMapT <A> (_ transform: @escaping (ProducedType.ElementType) -> {% call getConcrete1 type1 "" %}) -> {% call getConcrete1 type1 "" %} {
+		return flatMap {
+			{% if type1.name == "OptionalType" %}
+			$0.run(
+				ifSome: { transform($0) },
+				ifNone: { AnyProducer.init(Fixed.init(Optional.none)) })
+			{% elif type1.name == "ResultType" %}
+			$0.run(
+				ifSuccess: { transform($0) },
+				ifFailure: { AnyProducer.init(Fixed.init(Result.failure($0))) },
+				ifCancel: { AnyProducer.init(Fixed.init(Result.cancel)) })
+			{% elif type1.name == "WriterType" %}
+			let (oldValue,oldLog) = $0.run
+			let newObject = transform(oldValue)
+			return newObject.map {
+				let (newValue,newLog) = $0.run
+				return Writer.init(value: newValue, log: oldLog <> newLog)
+			}
+			.any
+			{% elif type1.name == "EffectType" %}
+			transform($0.run())
+			{% endif %}
+		}
+		.any
+	}
+}
+
+public func |>>- <T,A> (_ object: T, _ transform: @escaping (T.ProducedType.ElementType) -> {% call getConcrete1 type1 "T" %}) -> {% call getConcrete1 type1 "T" %} where T: Producer, T.ProducedType: {{ type1.name }} {
+	return object.flatMapT(transform)
+}
+
+{% endfor %}
+
+{% for type1 in types.all|annotated:"transformer1"|annotated:"concrete" where type1.kind == "extension" %}
+{% for type2 in types.all|annotated:"transformer2"|annotated:"concrete" where type2.kind == "extension" %}
+
+extension Producer where ProducedType: {{ type1.name }}, ProducedType.ElementType: {{ type2.name }} {
+	public func mapTT <A> (_ transform: @escaping (ProducedType.ElementType.ElementType) -> A) -> {% call getConcrete2 type1 type2 "" %} {
+		return mapT { $0.map(transform) }.any
+	}
+
+	public func flatMapTT <A> (_ transform: @escaping (ProducedType.ElementType.ElementType) -> {% call getConcrete2 type1 type2 "" %}) -> {% call getConcrete2 type1 type2 "" %} {
+		return flatMapT {
+			{% if type2.name == "OptionalType" %}
+			$0.run(
+				ifSome: { transform($0) },
+				ifNone: { AnyProducer.init(Fixed.init({{ type1.annotations.concrete }}.init(Optional.none))) })
+			{% elif type2.name == "ResultType" %}
+			$0.run(
+				ifSuccess: { transform($0) },
+				ifFailure: { AnyProducer.init(Fixed.init({{ type1.annotations.concrete }}.init(Result.failure($0)))) },
+				ifCancel: { AnyProducer.init(Fixed.init({{ type1.annotations.concrete }}.init(Result.cancel))) })
+			{% elif type2.name == "WriterType" %}
+			let (oldValue,oldLog) = $0.run
+			let newObject = transform(oldValue)
+			return newObject.mapT {
+				let (newValue,newLog) = $0.run
+				return Writer.init(value: newValue, log: oldLog <> newLog)
+			}
+			.any
+			{% elif type2.name == "EffectType" %}
+			transform($0.run())
+			{% endif %}
+		}
+		.any
+	}
+}
+
+public func ||>>- <T,A> (_ object: T, _ transform: @escaping (T.ProducedType.ElementType.ElementType) -> {% call getConcrete2 type1 type2 "T" %}) -> {% call getConcrete2 type1 type2 "T" %} where T: Producer, T.ProducedType: {{ type1.name }}, T.ProducedType.ElementType: {{ type2.name }} {
+	return object.flatMapTT(transform)
+}
+
+{% endfor %}
+{% endfor %}
+
+{% for type1 in types.all|annotated:"transformer1"|annotated:"concrete" where type1.kind == "extension" %}
+{% for type2 in types.all|annotated:"transformer2"|annotated:"concrete" where type2.kind == "extension" %}
+{% for type3 in types.all|annotated:"transformer3"|annotated:"concrete" where type3.kind == "extension" %}
+
+extension Producer where ProducedType: {{ type1.name }}, ProducedType.ElementType: {{ type2.name }}, ProducedType.ElementType.ElementType: {{ type3.name }} {
+	public func mapTTT <A> (_ transform: @escaping (ProducedType.ElementType.ElementType.ElementType) -> A) -> {% call getConcrete3 type1 type2 type3 "" %} {
+		return mapTT { $0.map(transform) }.any
+	}
+
+	public func flatMapTTT <A> (_ transform: @escaping (ProducedType.ElementType.ElementType.ElementType) -> {% call getConcrete3 type1 type2 type3 "" %}) -> {% call getConcrete3 type1 type2 type3 "" %} {
+		return flatMapTT {
+			{% if type3.name == "OptionalType" %}
+			$0.run(
+				ifSome: { transform($0) },
+				ifNone: { AnyProducer.init(Fixed.init({{ type1.annotations.concrete }}.init({{ type2.annotations.concrete }}.init(Optional.none)))) })
+			{% elif type3.name == "ResultType" %}
+			$0.run(
+				ifSuccess: { transform($0) },
+				ifFailure: { AnyProducer.init(Fixed.init({{ type1.annotations.concrete }}.init({{ type2.annotations.concrete }}.init(Result.failure($0))))) },
+				ifCancel: { AnyProducer.init(Fixed.init({{ type1.annotations.concrete }}.init({{ type2.annotations.concrete }}.init(Result.cancel)))) })
+			{% elif type3.name == "WriterType" %}
+			let (oldValue,oldLog) = $0.run
+			let newObject = transform(oldValue)
+			return newObject.mapTT {
+				let (newValue,newLog) = $0.run
+				return Writer.init(value: newValue, log: oldLog <> newLog)
+			}
+			.any
+			{% elif type3.name == "EffectType" %}
+			transform($0.run())
+			{% endif %}
+		}
+		.any
+	}
+}
+
+public func |||>>- <T,A> (_ object: T, _ transform: @escaping (T.ProducedType.ElementType.ElementType.ElementType) -> {% call getConcrete3 type1 type2 type3 "T" %}) -> {% call getConcrete3 type1 type2 type3 "T" %} where T: Producer, T.ProducedType: {{ type1.name }}, T.ProducedType.ElementType: {{ type2.name }}, T.ProducedType.ElementType.ElementType: {{ type3.name }} {
+	return object.flatMapTTT(transform)
+}
+
+{% endfor %}
+{% endfor %}
+{% endfor %}
