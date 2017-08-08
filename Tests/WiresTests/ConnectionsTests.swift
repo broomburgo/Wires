@@ -102,7 +102,7 @@ class ConnectionsTests: XCTestCase {
 		var subwireIndex = 0
 		var subbundleIndex = 0
 
-		currentWire = speaker1.consumeInterlacing { value in
+		currentWire = speaker1.interlace { value in
 			values.append(value)
 			subwireIndex += 1
 			subbundleIndex += 1

@@ -123,7 +123,7 @@ extension Producer {
 		return bundle
 	}
 
-	public func consumeInterlacing(onStop: @escaping () -> () = {}, onNext: @escaping (ProducedType) -> Wire) -> Wire {
+	public func interlace(onStop: @escaping () -> () = {}, onNext: @escaping (ProducedType) -> Wire) -> Wire {
 		let bundle = WireBundle.init()
 		consume(
 			onStop: { [weak bundle] in
