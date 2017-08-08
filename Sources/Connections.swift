@@ -1,3 +1,5 @@
+import Abstract
+
 public protocol Wire {
     var connected: Bool { get }
     func disconnect()
@@ -88,10 +90,6 @@ public final class WireBundle: Wire, CustomStringConvertible {
 }
 
 extension Wire {
-	public func interlace(with other: Wire) -> Wire {
-		return WireBundle.init(self,other)
-	}
-
     public func add(to bundle: WireBundle) {
         bundle.add(self)
     }
