@@ -632,12 +632,48 @@ class TransformersTests: XCTestCase {
         
         waitForExpectations(timeout: 1)
     }
-    
+
+	func testMergeCached() {
+		let speaker1 = Speaker<Int>()
+		let speaker2 = Speaker<Int>()
+
+		let cached1 = speaker1.cached
+		let cached2 = speaker2.cached
+
+		let expectedValue1 = 23
+		let expectedValue2 = 42
+
+		speaker1.say(expectedValue1)
+		speaker2.say(expectedValue2)
+
+		let willObserve1 = expectation(description: "willObserve1")
+		let willObserve2 = expectation(description: "willObserve2")
+
+		let listener = Listener<Int>.init{ signal in
+			switch signal {
+			case .next(let value):
+				if value == expectedValue1 {
+					XCTAssertEqual(value, expectedValue1)
+					willObserve1.fulfill()
+				} else {
+					XCTAssertEqual(value, expectedValue2)
+					willObserve2.fulfill()
+				}
+			case .stop:
+				break
+			}
+		}
+
+		currentWire = cached1.merge(cached2).connect(to: listener)
+
+		waitForExpectations(timeout: 1)
+	}
+
     // MARK: - DebounceProducer tests
-    
+
     func testDebounce() {
         let speaker = Speaker<Int>()
-        
+
         let unexpectedValue1 = 1
         let unexpectedValue2 = 2
         let expectedValue1 = 3
