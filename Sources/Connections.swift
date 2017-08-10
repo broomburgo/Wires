@@ -59,6 +59,28 @@ public final class WireSingle: Wire, CustomStringConvertible {
 	}
 }
 
+public final class WireTagged: Wire, CustomStringConvertible {
+	private let root: Wire
+	public let tag: String
+
+	public var connected: Bool {
+		return root.connected
+	}
+
+	public func disconnect() {
+		root.disconnect()
+	}
+
+	public init(root: Wire, tag: String) {
+		self.root = root
+		self.tag = tag
+	}
+
+	public var description: String {
+		return "WireTagged(\(root))"
+	}
+}
+
 public final class WireBundle: Wire, CustomStringConvertible {
 	private var wires: [Wire] = []
 	public let description: String
