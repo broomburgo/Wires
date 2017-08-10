@@ -48,6 +48,7 @@ open class AbstractTransformer<Source,Target>: Transformer {
     }
 
 	deinit {
+		Log.with(context: self, text: "deinit")
 		speaker.mute()
 	}
 }
@@ -80,7 +81,8 @@ public final class MapProducer<Source,Target>: AbstractTransformer<Source,Target
 
 public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Target> {
     private let flatMappingFunction: (Source) -> AnyProducer<Target>
-	private let wireBundle = WireBundle.init()
+	private var wires: [WireTagged] = []
+	private var currentTag = 0
 
     public init<P>(_ root: P, queue: DispatchQueue?, flatMappingFunction: @escaping (Source) -> AnyProducer<Target>) where P: Producer, P.ProducedType == Source {
         self.flatMappingFunction = flatMappingFunction
@@ -96,17 +98,34 @@ public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Ta
             case .next(let value):
 				Log.with(context: this, text: "creating new producer from \(value)")
                 let newProducer = this.flatMappingFunction(value)
-				newProducer.consume(onStop: { done(.stop) }) { value in
-					done(.next(value))
-				}
-				.add(to: this.wireBundle)
+				this.currentTag += 1
+				let tag = "\(this.currentTag)"
+				let wire = newProducer.consume(
+					onStop: { [weak this] in
+						guard let this = this else { return }
+						this.removeTaggedWire(withTag: tag)
+						if this.wires.isEmpty {
+							done(.stop)
+						}
+					},
+					onNext: { value in
+						done(.next(value))
+				})
+				this.wires.append(WireTagged.init(root: wire, tag: tag))
             case .stop:
 				Log.with(context: this, text: "disconnecting all producers")
+				this.wires.forEach { $0.disconnect() }
+				this.wires.removeAll()
 				done(.stop)
-				this.wireBundle.disconnect()
             }
         }
     }
+
+	private func removeTaggedWire(withTag tag: String) {
+		guard let index = wires.index(where: { $0.tag == tag }) else { return }
+		wires[index].disconnect()
+		wires.remove(at: index)
+	}
 }
 
 // MARK: -

@@ -65,16 +65,16 @@ class ProducersTests: XCTestCase {
 	func testSpeakerStop() {
 		let speaker = Speaker<Int>()
 
-		let expetectedValue1 = 23
-		let expetectedValue2 = 24
-		let expetectedValue3 = 25
+		let expectedValue1 = 23
+		let expectedValue2 = 24
+		let expectedValue3 = 25
 
 		var observeOnce = false
 
 		speaker.upon { signal in
 			switch (signal, observeOnce) {
 			case (.next(let value), false):
-				XCTAssertEqual(value, expetectedValue1)
+				XCTAssertEqual(value, expectedValue1)
 				observeOnce = true
 			case(.stop, true):
 				XCTAssert(true)
@@ -83,10 +83,10 @@ class ProducersTests: XCTestCase {
 			}
 		}
 
-		speaker.say(expetectedValue1)
+		speaker.say(expectedValue1)
 		speaker.mute()
-		speaker.say(expetectedValue2)
-		speaker.say(expetectedValue3)
+		speaker.say(expectedValue2)
+		speaker.say(expectedValue3)
 	}
 
 	func testFixed() {
