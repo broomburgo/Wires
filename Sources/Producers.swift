@@ -151,7 +151,6 @@ public final class Future<T>: Producer, PureConstructible {
 	@discardableResult
 	public func start() -> Self {
 		guard case .idle = currentState else {
-			Log.with(context: self, text: "cannot start because already started and in state \(currentState)")
 			return self
 		}
 		Log.with(context: self, text: "starting")
@@ -172,7 +171,7 @@ public final class Future<T>: Producer, PureConstructible {
 			Log.with(context: self, text: "handling callback with SPEAKER")
 			speaker.upon(callback)
 		}
-		return self
+		return start()
 	}
 
 	deinit {
@@ -184,6 +183,12 @@ fileprivate enum FutureState<A> {
 	case idle
 	case processing
 	case complete(A)
+}
+
+extension Deferred {
+	public var toFuture: Future<ElementType> {
+		return Future<ElementType>.init(execute: self.run)
+	}
 }
 
 // MARK: -

@@ -134,9 +134,7 @@ class ProducersTests: XCTestCase {
 		XCTAssertNil(future.value)
 		var value: Int? = nil
 		future.onNext { value = $0 }
-		XCTAssertNil(future.value)
 		XCTAssertNil(value)
-		future.start()
 		XCTAssertEqual(future.value, 42)
 		XCTAssertNil(value)
 

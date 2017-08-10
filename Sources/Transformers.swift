@@ -104,9 +104,6 @@ public final class FlatMapProducer<Source,Target>: AbstractTransformer<Source,Ta
 					onStop: { [weak this] in
 						guard let this = this else { return }
 						this.removeTaggedWire(withTag: tag)
-						if this.wires.isEmpty {
-							done(.stop)
-						}
 					},
 					onNext: { value in
 						done(.next(value))
