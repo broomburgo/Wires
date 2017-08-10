@@ -397,17 +397,14 @@ class TransformersTests: XCTestCase {
 				after(0.4) { [weak newSpeaker] in
 					newSpeaker?.say(value)
 				}
-				after(0.6) { [weak newSpeaker] in
-					newSpeaker?.mute()
-				}
-				after(0.8) { [weak newSpeaker] in
-					newSpeaker?.say(value)
-				}
 				return AnyProducer<Int>.init(newSpeaker)
 			}
 			.connect(to: listener)
 
 		speaker.say(expectedValue)
+		after(0.6) { [weak speaker] in
+			speaker?.mute()
+		}
 
 		let willWait = expectation(description: "willWait")
 		after(1.2) {
