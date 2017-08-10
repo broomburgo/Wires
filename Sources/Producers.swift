@@ -120,6 +120,7 @@ public final class Future<T>: Producer, PureConstructible {
 			Log.with(context: self, text: "updating state to \(currentState)")
 			guard case .complete(let value) = currentState else { return }
 			speaker.say(value)
+			speaker.mute()
 			fixed = Fixed.init(value, productionQueue: speaker.productionQueue)
 		}
 	}
