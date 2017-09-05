@@ -251,6 +251,79 @@ public func combineLatest<P1,P2>(_ producer1: P1, _ producer2: P2) -> CombineLat
 
 // MARK: -
 
+public final class CombineLatest3<Source1,Source2,Source3>: Producer {
+    public typealias ProducedType = (Source1,Source2,Source3)
+    public let productionQueue: DispatchQueue
+    private let root1: AnyProducer<Source1>
+    private let root2: AnyProducer<Source2>
+    private let root3: AnyProducer<Source3>
+    private var value1: Source1? = nil
+    private var value2: Source2? = nil
+    private var value3: Source3? = nil
+    private let speaker: Speaker<(Source1,Source2,Source3)>
+    private let wireBundle = WireBundle.init()
+    
+    public init<P1,P2,P3>(_ root1: P1, _ root2: P2, _ root3: P3) where P1: Producer, P1.ProducedType == Source1, P2: Producer, P2.ProducedType == Source2, P3: Producer, P3.ProducedType == Source3 {
+        self.productionQueue = root1.productionQueue
+        self.root1 = root1.any
+        self.root2 = root2.any
+        self.root3 = root3.any
+        self.speaker = Speaker<(Source1,Source2,Source3)>.init(productionQueue: self.productionQueue)
+        
+        self.root1
+            .consume(onStop: { [weak self] in
+                guard let this = self else { return }
+                this.speaker.mute()
+            }) { [weak self] value1 in
+                guard let this = self else { return }
+                this.value1 = value1
+                guard let value1 = this.value1, let value2 = this.value2, let value3 = this.value3 else { return }
+                this.speaker.say(value1,value2,value3)
+            }
+            .add(to: self.wireBundle)
+        
+        self.root2
+            .consume(onStop: { [weak self] in
+                guard let this = self else { return }
+                this.speaker.mute()
+            }) { [weak self] value2 in
+                guard let this = self else { return }
+                this.value2 = value2
+                guard let value1 = this.value1, let value2 = this.value2, let value3 = this.value3 else { return }
+                this.speaker.say(value1,value2, value3)
+            }
+            .add(to: self.wireBundle)
+        
+        self.root3
+            .consume(onStop: { [weak self] in
+                guard let this = self else { return }
+                this.speaker.mute()
+            }) { [weak self] value3 in
+                guard let this = self else { return }
+                this.value3 = value3
+                guard let value1 = this.value1, let value2 = this.value2, let value3 = this.value3 else { return }
+                this.speaker.say(value1,value2, value3)
+            }
+            .add(to: self.wireBundle)
+    }
+    
+    public func upon(_ callback: @escaping (Signal<(Source1, Source2, Source3)>) -> ()) -> Self {
+        self.speaker.upon(callback)
+        return self
+    }
+    
+    deinit {
+        speaker.mute()
+        wireBundle.disconnect()
+    }
+}
+
+public func combineLatest<P1,P2,P3>(_ producer1: P1, _ producer2: P2, _ producer3: P3) -> CombineLatest3<P1.ProducedType,P2.ProducedType,P3.ProducedType> where P1: Producer, P2: Producer, P3: Producer {
+    return CombineLatest3.init(producer1, producer2, producer3)
+}
+
+// MARK: -
+
 public final class Zip2Producer<Source1,Source2>: Producer {
 	public typealias ProducedType = (Source1,Source2)
 	public let productionQueue: DispatchQueue
