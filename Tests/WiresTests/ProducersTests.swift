@@ -15,6 +15,7 @@ class ProducersTests: XCTestCase {
 		("testFutureStartIdempotent",testFutureStartIdempotent),
 		("testCombineLatest1",testCombineLatest1),
 		("testCombineLatest2",testCombineLatest2),
+		("testCombineLatest3",testCombineLatest3),
 		("testZip2Producer1",testZip2Producer1),
 		("testZip2Producer2",testZip2Producer2),
 		("testZip2Producer3",testZip2Producer3),
@@ -287,43 +288,91 @@ class ProducersTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
-	func testCombineLatest2() {
-		let speaker1 = Speaker<Int>.init()
-		let speaker2 = Speaker<String>.init()
-
-		let combined = combineLatest(speaker1, speaker2)
-
-		var values = [(Int,String)].init()
-		let expectedValues: [(Int,String)] = [
-			(0,"0"),
-			(1,"0"),
-			(1,"1"),
-			(1,"2")
-		]
-
-		combined.onNext { values.append(($0,$1)) }
-
-		speaker1.say(0)
-		speaker2.say("0")
-		speaker1.say(1)
-		speaker2.say("1")
-		speaker2.say("2")
-		speaker2.mute()
-		speaker2.say("3")
-		speaker1.say(2)
-		speaker1.say(3)
-
-		let willListen = expectation(description: "willListen")
-		after(0.1) {
-			XCTAssertEqual(values.count, expectedValues.count)
-			for (value1,value2) in zip(values, expectedValues) {
-				XCTAssert(value1 == value2)
-			}
-			willListen.fulfill()
-		}
-
-		waitForExpectations(timeout: 1)
-	}
+    func testCombineLatest2() {
+        let speaker1 = Speaker<Int>.init()
+        let speaker2 = Speaker<String>.init()
+        
+        let combined = combineLatest(speaker1, speaker2)
+        
+        var values = [(Int,String)].init()
+        let expectedValues: [(Int,String)] = [
+            (0,"0"),
+            (1,"0"),
+            (1,"1"),
+            (1,"2")
+        ]
+        
+        combined.onNext { values.append(($0,$1)) }
+        
+        speaker1.say(0)
+        speaker2.say("0")
+        speaker1.say(1)
+        speaker2.say("1")
+        speaker2.say("2")
+        speaker2.mute()
+        speaker2.say("3")
+        speaker1.say(2)
+        speaker1.say(3)
+        
+        let willListen = expectation(description: "willListen")
+        after(0.1) {
+            XCTAssertEqual(values.count, expectedValues.count)
+            for (value1,value2) in zip(values, expectedValues) {
+                XCTAssert(value1 == value2)
+            }
+            willListen.fulfill()
+        }
+        
+        waitForExpectations(timeout: 1)
+    }
+    
+    func testCombineLatest3() {
+        let speaker1 = Speaker<Int>.init()
+        let speaker2 = Speaker<String>.init()
+        let speaker3 = Speaker<String>.init()
+        
+        let combined = combineLatest(speaker1, speaker2, speaker3)
+        
+        var values = [(Int,String,String)].init()
+        let expectedValues: [(Int,String,String)] = [
+            (0,"0","0"),
+            (0,"0","1"),
+            (1,"0","1"),
+            (1,"0","2"),
+            (1,"1","2"),
+            (1,"2","2"),
+            (1,"2","3")
+        ]
+        
+        combined.onNext { values.append(($0,$1,$2)) }
+        
+        
+        speaker1.say(0)
+        speaker2.say("0")
+        speaker3.say("0")
+        speaker3.say("1")
+        speaker1.say(1)
+        speaker3.say("2")
+        speaker2.say("1")
+        speaker2.say("2")
+        speaker3.say("3")
+        speaker3.mute()
+        speaker2.say("3")
+        speaker1.say(2)
+        speaker1.say(3)
+        speaker3.say("100")
+        
+        let willListen = expectation(description: "willListen")
+        after(0.1) {
+            XCTAssertEqual(values.count, expectedValues.count)
+            for (value1,value2) in zip(values, expectedValues) {
+                XCTAssert(value1 == value2)
+            }
+            willListen.fulfill()
+        }
+        
+        waitForExpectations(timeout: 1)
+    }
 
 	func testZip2Producer1() {
 		let speaker1 = Speaker<Int>.init()
