@@ -217,7 +217,7 @@ public final class CombineLatest<Source1,Source2>: Producer {
                 guard let this = self else { return }
                 this.value1 = value1
                 guard let value1 = this.value1, let value2 = this.value2 else { return }
-                this.speaker.say(value1,value2)
+                this.speaker.say((value1,value2))
             }
             .add(to: self.wireBundle)
         
@@ -229,7 +229,7 @@ public final class CombineLatest<Source1,Source2>: Producer {
                 guard let this = self else { return }
                 this.value2 = value2
                 guard let value1 = this.value1, let value2 = this.value2 else { return }
-                this.speaker.say(value1,value2)
+                this.speaker.say((value1,value2))
             }
             .add(to: self.wireBundle)
     }

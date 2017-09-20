@@ -79,6 +79,10 @@ public final class WireTagged: Wire, CustomStringConvertible {
 	public var description: String {
 		return "WireTagged(\(root))"
 	}
+
+	deinit {
+		disconnect()
+	}
 }
 
 public final class WireBundle: Wire, CustomStringConvertible {
@@ -107,6 +111,10 @@ public final class WireBundle: Wire, CustomStringConvertible {
 		Log.with(context: self, text: "disconnecting")
 		wires.forEach { $0.disconnect() }
 		wires.removeAll()
+	}
+
+	deinit {
+		disconnect()
 	}
 }
 

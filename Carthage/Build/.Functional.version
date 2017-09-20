@@ -1,0 +1,15 @@
+{
+  "iOS" : [
+    {
+      "hash" : "ee8cdc37d0ae5352967d93891a0bcbbfc3c508c7543d4e5f476eaf0acae77243",
+      "name" : "Functional"
+    }
+  ],
+  "commitish" : "0.0.6",
+  "Mac" : [
+    {
+      "hash" : "24a79e6688427cddf4f9bf51815da37ac1b47ea1a8ecdd2944df6f116af99c27",
+      "name" : "Functional"
+    }
+  ]
+}
